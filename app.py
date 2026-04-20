@@ -3,6 +3,8 @@ import pandas as pd
 from supabase import create_client
 import matplotlib.pyplot as plt
 from datetime import datetime
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
 
 # -----------------------------
 # 🔌 SUPABASE CONFIG
@@ -29,10 +31,7 @@ body { background-color: #F5F7FA; }
 .orange { background-color: #FFF3E0; }
 .green { background-color: #E8F5E9; }
 .title { font-size:16px; font-weight:600; margin-bottom:10px; }
-.row {
-    display:flex; justify-content:space-between;
-    font-size:14px; padding:3px 0;
-}
+.row { display:flex; justify-content:space-between; font-size:14px; }
 .total { font-weight:bold; margin-top:8px; }
 </style>
 """, unsafe_allow_html=True)
@@ -55,6 +54,17 @@ def save_to_db(month, fixed, variable, investment, total, var_data):
 
 def load_data():
     return supabase.table("budget").select("*").execute().data
+
+def create_pdf(month, insights_text):
+    file_path = f"{month}_report.pdf"
+    doc = SimpleDocTemplate(file_path)
+    styles = getSampleStyleSheet()
+    elements = []
+    elements.append(Paragraph(f"<b>Monthly Financial Report</b>", styles["Title"]))
+    elements.append(Spacer(1,10))
+    elements.append(Paragraph(insights_text, styles["Normal"]))
+    doc.build(elements)
+    return file_path
 
 # -----------------------------
 # DATA
@@ -84,7 +94,6 @@ investments = {
 # HEADER
 # -----------------------------
 st.title("MONTHLY BUDGET")
-
 month = st.text_input("Month", value=datetime.now().strftime("%B %Y"))
 
 col1, col2 = st.columns(2)
@@ -110,7 +119,6 @@ with col1:
 # VARIABLE + INVESTMENT
 # -----------------------------
 with col2:
-
     st.markdown('<div class="card orange">', unsafe_allow_html=True)
     st.markdown('<div class="title">VARIABLE EXPENSES</div>', unsafe_allow_html=True)
 
@@ -122,18 +130,9 @@ with col2:
         variable_total += actual
         var_data[item] = actual
 
-        diff = actual - budget
-        if diff > 0:
-            st.error(f"{item}: +₹{diff}")
-        elif diff < 0:
-            st.success(f"{item}: ₹{abs(diff)} saved")
-
-        st.markdown(f'<div class="row"><span>{item}</span><span>₹{actual}</span></div>', unsafe_allow_html=True)
-
     st.markdown(f'<div class="total">Total: ₹{variable_total}</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # INVESTMENTS
     st.markdown('<div class="card green">', unsafe_allow_html=True)
     st.markdown('<div class="title">INVESTMENTS</div>', unsafe_allow_html=True)
 
@@ -142,7 +141,6 @@ with col2:
         done = st.checkbox(f"{item} — ₹{amount}", key=item+"_inv")
         if done:
             investment_total += amount
-        st.markdown(f'<div class="row"><span>{item}</span><span>₹{amount}</span></div>', unsafe_allow_html=True)
 
     st.markdown(f'<div class="total">Total: ₹{investment_total}</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
@@ -169,76 +167,98 @@ if st.button("💾 Save Month Data"):
     st.success("Saved permanently!")
 
 # -----------------------------
-# HISTORY + CHARTS
+# LOAD DATA
 # -----------------------------
 data = load_data()
 
 if data:
-    df = pd.DataFrame(data)
-    df = df.sort_values("created_at")
+    df = pd.DataFrame(data).sort_values("created_at")
 
     st.subheader("📈 Trend")
     st.line_chart(df.set_index("month")["grand_total"])
 
-    st.subheader("📊 Category Comparison")
-    st.bar_chart(df[["fixed_total", "variable_total", "investment_total"]])
+    st.subheader("📊 Category Trends")
+    st.line_chart(df.set_index("month")[["groceries","electricity","outside_food","miscellaneous"]])
 
-    # Pie chart
+    # -----------------------------
+    # 🧠 ULTIMATE AI ADVISOR
+    # -----------------------------
+    st.subheader("🤖 AI Financial Advisor")
+
     latest = df.iloc[-1]
-    fig, ax = plt.subplots()
-    ax.pie(
-        [latest["fixed_total"], latest["variable_total"], latest["investment_total"]],
-        labels=["Fixed", "Variable", "Investment"],
-        autopct="%1.1f%%"
-    )
-    st.pyplot(fig)
+    prev = df.iloc[-2] if len(df) > 1 else None
 
-    # -----------------------------
-    # 🤖 CATEGORY AI INSIGHTS
-    # -----------------------------
-    st.subheader("🧠 Category AI Insights")
+    # Category analysis
+    overspend = {}
+    contributions = {}
 
-    category_map = {
-        "Groceries": "groceries",
-        "Electricity": "electricity",
-        "Outside Food": "outside_food",
-        "Miscellaneous": "miscellaneous"
-    }
+    for k,v in variable_budget.items():
+        col = k.lower().replace(" ","_")
+        val = latest[col]
+        contributions[k] = val
 
-    for name, col in category_map.items():
-        if col not in df.columns:
-            continue
+        if val > v:
+            overspend[k] = val - v
 
-        avg = df[col].mean()
-        current = df.iloc[-1][col]
-        budget = variable_budget[name]
+    total_waste = sum(overspend.values())
 
-        if current > budget:
-            st.error(f"{name}: Overspending by ₹{int(current - budget)}")
+    # Narrative
+    insight_text = ""
 
-        if len(df) > 2 and df.iloc[-1][col] > df.iloc[-2][col]:
-            st.warning(f"{name}: Spending increasing trend")
-
-        if avg > budget:
-            st.warning(f"{name}: Reduce ₹{int(avg - budget)} monthly")
-
-        if current < budget:
-            st.success(f"{name}: Saved ₹{int(budget - current)}")
-
-# -----------------------------
-# EXTRA AI SUMMARY
-# -----------------------------
-if data:
-    st.subheader("🤖 AI Summary")
-
-    avg_spend = df["grand_total"].mean()
-    last = df.iloc[-1]["grand_total"]
-
-    if last > avg_spend:
-        st.warning(f"Overall spending ₹{int(last - avg_spend)} above average")
-
+    if overspend:
+        worst = max(overspend, key=overspend.get)
+        insight_text += f"You are overspending mainly on {worst}. "
     else:
-        st.success(f"You saved ₹{int(avg_spend - last)} vs average")
+        insight_text += "Your spending is well controlled this month. "
 
-    predicted = int(avg_spend)
-    st.info(f"Next month predicted spending: ₹{predicted}")
+    if prev is not None:
+        diff = latest["grand_total"] - prev["grand_total"]
+        if diff > 0:
+            insight_text += f"Spending increased by ₹{int(diff)} compared to last month. "
+        else:
+            insight_text += f"You saved ₹{int(abs(diff))} compared to last month. "
+
+    if total_waste > 0:
+        insight_text += f"You can save ₹{int(total_waste)} per month (₹{int(total_waste*12)} yearly) by fixing overspending."
+
+    st.info(insight_text)
+
+    # Top 3 actions
+    st.write("### 🎯 Top Actions")
+    for k,v in sorted(overspend.items(), key=lambda x:-x[1])[:3]:
+        st.write(f"• Reduce {k} by ₹{int(v)}")
+
+    # Score
+    score = 100
+    score -= min(total_waste//200,30)
+
+    if latest["investment_total"] < 60000:
+        score -= 20
+
+    if prev is not None and latest["grand_total"] > prev["grand_total"]:
+        score -= 10
+
+    score = max(score,0)
+
+    st.subheader(f"💯 Score: {score}/100")
+
+    # Prediction (trend-based)
+    st.write("### 📉 3 Month Forecast")
+    if len(df) > 1:
+        trend = latest["grand_total"] - prev["grand_total"]
+    else:
+        trend = 0
+
+    base = latest["grand_total"]
+
+    for i in range(1,4):
+        pred = base + (trend*i)
+        st.write(f"Month +{i}: ₹{int(pred)}")
+
+    # -----------------------------
+    # PDF DOWNLOAD
+    # -----------------------------
+    if st.button("📄 Download Report"):
+        path = create_pdf(month, insight_text)
+        with open(path, "rb") as f:
+            st.download_button("Download PDF", f, file_name=path)
