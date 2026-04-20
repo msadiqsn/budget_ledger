@@ -12,8 +12,34 @@ SUPABASE_KEY =  "sb_publishable_uIw4d9MgIgoYfQkbXgIvgg_vYqGabBz"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+
+
 # -----------------------------
-# 💾 SAVE FUNCTION
+# 🎨 UI STYLE
+# -----------------------------
+st.markdown("""
+<style>
+body { background-color: #F5F7FA; }
+.card {
+    padding: 18px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+.blue { background-color: #E3F2FD; }
+.orange { background-color: #FFF3E0; }
+.green { background-color: #E8F5E9; }
+.title { font-size:16px; font-weight:600; margin-bottom:10px; }
+.row {
+    display:flex; justify-content:space-between;
+    font-size:14px; padding:3px 0;
+}
+.total { font-weight:bold; margin-top:8px; }
+</style>
+""", unsafe_allow_html=True)
+
+# -----------------------------
+# FUNCTIONS
 # -----------------------------
 def save_to_db(month, fixed, variable, investment, total):
     supabase.table("budget").insert({
@@ -24,27 +50,12 @@ def save_to_db(month, fixed, variable, investment, total):
         "grand_total": total
     }).execute()
 
-# -----------------------------
-# 📥 LOAD FUNCTION
-# -----------------------------
 def load_data():
-    response = supabase.table("budget").select("*").execute()
-    return response.data
+    return supabase.table("budget").select("*").execute().data
 
 # -----------------------------
-# 🧱 UI START
+# DATA
 # -----------------------------
-st.set_page_config(page_title="Budget Tracker", layout="centered")
-
-st.title("💼 Monthly Budget Tracker")
-
-month = st.text_input("Month", value=datetime.now().strftime("%B %Y"))
-
-# -----------------------------
-# FIXED EXPENSES
-# -----------------------------
-st.header("Fixed Expenses")
-
 fixed_expenses = {
     "Home Rent": 16000,
     "WiFi": 1000,
@@ -54,20 +65,6 @@ fixed_expenses = {
     "Maid Aunty": 3000
 }
 
-fixed_total = 0
-
-for item, amount in fixed_expenses.items():
-    paid = st.checkbox(f"{item} (₹{amount})")
-    if paid:
-        fixed_total += amount
-
-st.write(f"Total Fixed Paid: ₹{fixed_total}")
-
-# -----------------------------
-# VARIABLE EXPENSES
-# -----------------------------
-st.header("Variable Expenses")
-
 variable_budget = {
     "Groceries": 9000,
     "Electricity": 1000,
@@ -75,108 +72,147 @@ variable_budget = {
     "Miscellaneous": 7000
 }
 
-variable_total = 0
-
-for item, budget in variable_budget.items():
-    actual = st.number_input(f"{item} (Budget ₹{budget})", min_value=0, step=100)
-    variable_total += actual
-
-    diff = actual - budget
-    if diff > 0:
-        st.error(f"{item}: +₹{diff} extra")
-    elif diff < 0:
-        st.success(f"{item}: ₹{abs(diff)} saved")
-    else:
-        st.info(f"{item}: exact")
-
-st.write(f"Total Variable: ₹{variable_total}")
-
-# -----------------------------
-# INVESTMENTS
-# -----------------------------
-st.header("Investments")
-
 investments = {
     "Bissi": 10000,
     "SIP": 50000
 }
 
-investment_total = 0
+# -----------------------------
+# HEADER
+# -----------------------------
+st.title("MONTHLY BUDGET")
 
-for item, amount in investments.items():
-    done = st.checkbox(f"{item} (₹{amount})")
-    if done:
-        investment_total += amount
+month = st.text_input("Month", value=datetime.now().strftime("%B %Y"))
 
-st.write(f"Total Investment: ₹{investment_total}")
+col1, col2 = st.columns(2)
 
 # -----------------------------
-# SUMMARY
+# FIXED
 # -----------------------------
-st.header("Summary")
+with col1:
+    st.markdown('<div class="card blue">', unsafe_allow_html=True)
+    st.markdown('<div class="title">FIXED EXPENSES</div>', unsafe_allow_html=True)
 
+    fixed_total = 0
+    for item, amount in fixed_expenses.items():
+        paid = st.checkbox(f"{item} — ₹{amount}", key=item)
+        if paid:
+            fixed_total += amount
+        st.markdown(f'<div class="row"><span>{item}</span><span>₹{amount}</span></div>', unsafe_allow_html=True)
+
+    st.markdown(f'<div class="total">Total: ₹{fixed_total}</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# -----------------------------
+# VARIABLE + INVESTMENT
+# -----------------------------
+with col2:
+
+    st.markdown('<div class="card orange">', unsafe_allow_html=True)
+    st.markdown('<div class="title">VARIABLE EXPENSES</div>', unsafe_allow_html=True)
+
+    variable_total = 0
+    for item, budget in variable_budget.items():
+        actual = st.number_input(f"{item} (₹{budget})", min_value=0, step=100, key=item+"_var")
+        variable_total += actual
+
+        diff = actual - budget
+        if diff > 0:
+            st.error(f"{item}: +₹{diff}")
+        elif diff < 0:
+            st.success(f"{item}: ₹{abs(diff)} saved")
+
+        st.markdown(f'<div class="row"><span>{item}</span><span>₹{actual}</span></div>', unsafe_allow_html=True)
+
+    st.markdown(f'<div class="total">Total: ₹{variable_total}</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # INVESTMENT
+    st.markdown('<div class="card green">', unsafe_allow_html=True)
+    st.markdown('<div class="title">INVESTMENTS</div>', unsafe_allow_html=True)
+
+    investment_total = 0
+    for item, amount in investments.items():
+        done = st.checkbox(f"{item} — ₹{amount}", key=item+"_inv")
+        if done:
+            investment_total += amount
+        st.markdown(f'<div class="row"><span>{item}</span><span>₹{amount}</span></div>', unsafe_allow_html=True)
+
+    st.markdown(f'<div class="total">Total: ₹{investment_total}</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# -----------------------------
+# GRAND TOTAL
+# -----------------------------
 grand_total = fixed_total + variable_total + investment_total
 
-st.metric("Grand Total", f"₹{grand_total}")
+st.markdown(f"""
+<div class="card" style="text-align:center;">
+    <div class="title">GRAND TOTAL</div>
+    <div style="font-size:22px; font-weight:bold; color:green;">
+        ₹{grand_total}
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 # -----------------------------
-# SAVE BUTTON
+# SAVE
 # -----------------------------
 if st.button("💾 Save Month Data"):
     save_to_db(month, fixed_total, variable_total, investment_total, grand_total)
-    st.success("Saved permanently in database!")
+    st.success("Saved permanently!")
 
 # -----------------------------
-# HISTORY + CHARTS
+# HISTORY
 # -----------------------------
-st.header("History & Insights")
-
 data = load_data()
 
 if data:
     df = pd.DataFrame(data)
+    df = df.sort_values("created_at")
 
-    st.subheader("📅 Data Table")
-    st.dataframe(df)
+    st.subheader("📈 Trend")
+    st.line_chart(df.set_index("month")["grand_total"])
 
-    # Trend chart
-    st.subheader("📈 Monthly Spending Trend")
-    df_sorted = df.sort_values("created_at")
-    st.line_chart(df_sorted.set_index("month")["grand_total"])
+    st.subheader("📊 Category")
+    st.bar_chart(df[["fixed_total", "variable_total", "investment_total"]])
 
-    # Bar chart
-    st.subheader("📊 Category Comparison")
-    st.bar_chart(df_sorted[["fixed_total", "variable_total", "investment_total"]])
-
-    # Pie chart (latest month)
-    st.subheader("🥧 Latest Month Breakdown")
-
-    latest = df_sorted.iloc[-1]
-
-    labels = ["Fixed", "Variable", "Investment"]
-    values = [
-        latest["fixed_total"],
-        latest["variable_total"],
-        latest["investment_total"]
-    ]
-
+    # Pie
+    latest = df.iloc[-1]
     fig, ax = plt.subplots()
-    ax.pie(values, labels=labels, autopct="%1.1f%%")
+    ax.pie(
+        [latest["fixed_total"], latest["variable_total"], latest["investment_total"]],
+        labels=["Fixed", "Variable", "Investment"],
+        autopct="%1.1f%%"
+    )
     st.pyplot(fig)
 
-# -----------------------------
-# SMART INSIGHTS
-# -----------------------------
-st.subheader("💡 Insights")
+    # -----------------------------
+    # 🤖 AI INSIGHTS
+    # -----------------------------
+    st.subheader("🤖 Smart Insights")
 
-if variable_total > 22000:
-    st.warning("⚠️ You are overspending on variable expenses")
+    avg_spending = df["grand_total"].mean()
+    last = df.iloc[-1]["grand_total"]
 
-if variable_total < 20000:
-    st.success("✅ Good control on expenses")
+    if last > avg_spending:
+        st.warning(f"⚠️ You are spending ₹{int(last-avg_spending)} above your average")
 
-if investment_total < 60000:
-    st.error("❌ Investment target not met")
+    else:
+        st.success(f"✅ You are saving ₹{int(avg_spending-last)} vs your average")
 
-if investment_total >= 60000:
-    st.success("🎯 Investment goal achieved")
+    # trend direction
+    if len(df) > 2:
+        if df.iloc[-1]["variable_total"] > df.iloc[-2]["variable_total"]:
+            st.warning("📈 Variable spending is increasing")
+
+    # investment consistency
+    if df["investment_total"].mean() < 60000:
+        st.error("❌ Investment average below target")
+
+    else:
+        st.success("🎯 Strong investment consistency")
+
+    # prediction
+    predicted = int(df["grand_total"].mean())
+    st.info(f"📊 Predicted next month spending: ₹{predicted}")
