@@ -5,13 +5,12 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 # -----------------------------
-# 🔌 SUPABASE CONNECTION
+# 🔌 SUPABASE CONFIG
 # -----------------------------
 SUPABASE_URL =  "https://lmlzlilfoudxdtyvuhbz.supabase.co"
 SUPABASE_KEY =  "sb_publishable_uIw4d9MgIgoYfQkbXgIvgg_vYqGabBz"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-
 
 
 # -----------------------------
@@ -41,13 +40,17 @@ body { background-color: #F5F7FA; }
 # -----------------------------
 # FUNCTIONS
 # -----------------------------
-def save_to_db(month, fixed, variable, investment, total):
+def save_to_db(month, fixed, variable, investment, total, var_data):
     supabase.table("budget").insert({
         "month": month,
         "fixed_total": fixed,
         "variable_total": variable,
         "investment_total": investment,
-        "grand_total": total
+        "grand_total": total,
+        "groceries": var_data["Groceries"],
+        "electricity": var_data["Electricity"],
+        "outside_food": var_data["Outside Food"],
+        "miscellaneous": var_data["Miscellaneous"]
     }).execute()
 
 def load_data():
@@ -112,9 +115,12 @@ with col2:
     st.markdown('<div class="title">VARIABLE EXPENSES</div>', unsafe_allow_html=True)
 
     variable_total = 0
+    var_data = {}
+
     for item, budget in variable_budget.items():
         actual = st.number_input(f"{item} (₹{budget})", min_value=0, step=100, key=item+"_var")
         variable_total += actual
+        var_data[item] = actual
 
         diff = actual - budget
         if diff > 0:
@@ -127,7 +133,7 @@ with col2:
     st.markdown(f'<div class="total">Total: ₹{variable_total}</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # INVESTMENT
+    # INVESTMENTS
     st.markdown('<div class="card green">', unsafe_allow_html=True)
     st.markdown('<div class="title">INVESTMENTS</div>', unsafe_allow_html=True)
 
@@ -159,11 +165,11 @@ st.markdown(f"""
 # SAVE
 # -----------------------------
 if st.button("💾 Save Month Data"):
-    save_to_db(month, fixed_total, variable_total, investment_total, grand_total)
+    save_to_db(month, fixed_total, variable_total, investment_total, grand_total, var_data)
     st.success("Saved permanently!")
 
 # -----------------------------
-# HISTORY
+# HISTORY + CHARTS
 # -----------------------------
 data = load_data()
 
@@ -174,10 +180,10 @@ if data:
     st.subheader("📈 Trend")
     st.line_chart(df.set_index("month")["grand_total"])
 
-    st.subheader("📊 Category")
+    st.subheader("📊 Category Comparison")
     st.bar_chart(df[["fixed_total", "variable_total", "investment_total"]])
 
-    # Pie
+    # Pie chart
     latest = df.iloc[-1]
     fig, ax = plt.subplots()
     ax.pie(
@@ -188,31 +194,51 @@ if data:
     st.pyplot(fig)
 
     # -----------------------------
-    # 🤖 AI INSIGHTS
+    # 🤖 CATEGORY AI INSIGHTS
     # -----------------------------
-    st.subheader("🤖 Smart Insights")
+    st.subheader("🧠 Category AI Insights")
 
-    avg_spending = df["grand_total"].mean()
+    category_map = {
+        "Groceries": "groceries",
+        "Electricity": "electricity",
+        "Outside Food": "outside_food",
+        "Miscellaneous": "miscellaneous"
+    }
+
+    for name, col in category_map.items():
+        if col not in df.columns:
+            continue
+
+        avg = df[col].mean()
+        current = df.iloc[-1][col]
+        budget = variable_budget[name]
+
+        if current > budget:
+            st.error(f"{name}: Overspending by ₹{int(current - budget)}")
+
+        if len(df) > 2 and df.iloc[-1][col] > df.iloc[-2][col]:
+            st.warning(f"{name}: Spending increasing trend")
+
+        if avg > budget:
+            st.warning(f"{name}: Reduce ₹{int(avg - budget)} monthly")
+
+        if current < budget:
+            st.success(f"{name}: Saved ₹{int(budget - current)}")
+
+# -----------------------------
+# EXTRA AI SUMMARY
+# -----------------------------
+if data:
+    st.subheader("🤖 AI Summary")
+
+    avg_spend = df["grand_total"].mean()
     last = df.iloc[-1]["grand_total"]
 
-    if last > avg_spending:
-        st.warning(f"⚠️ You are spending ₹{int(last-avg_spending)} above your average")
+    if last > avg_spend:
+        st.warning(f"Overall spending ₹{int(last - avg_spend)} above average")
 
     else:
-        st.success(f"✅ You are saving ₹{int(avg_spending-last)} vs your average")
+        st.success(f"You saved ₹{int(avg_spend - last)} vs average")
 
-    # trend direction
-    if len(df) > 2:
-        if df.iloc[-1]["variable_total"] > df.iloc[-2]["variable_total"]:
-            st.warning("📈 Variable spending is increasing")
-
-    # investment consistency
-    if df["investment_total"].mean() < 60000:
-        st.error("❌ Investment average below target")
-
-    else:
-        st.success("🎯 Strong investment consistency")
-
-    # prediction
-    predicted = int(df["grand_total"].mean())
-    st.info(f"📊 Predicted next month spending: ₹{predicted}")
+    predicted = int(avg_spend)
+    st.info(f"Next month predicted spending: ₹{predicted}")
