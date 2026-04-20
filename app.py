@@ -7,8 +7,8 @@ from datetime import datetime
 # -----------------------------
 # 🔌 SUPABASE CONNECTION
 # -----------------------------
-SUPABASE_URL = "PASTE_YOUR_URL_HERE"
-SUPABASE_KEY = "PASTE_YOUR_KEY_HERE"
+SUPABASE_URL =  "https://lmlzlilfoudxdtyvuhbz.supabase.co"
+SUPABASE_KEY =  "sb_publishable_uIw4d9MgIgoYfQkbXgIvgg_vYqGabBz"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
