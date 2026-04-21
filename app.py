@@ -12,56 +12,22 @@ SUPABASE_KEY =  "sb_publishable_uIw4d9MgIgoYfQkbXgIvgg_vYqGabBz"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # -----------------------------
-# MODERN STYLE
+# STYLE
 # -----------------------------
 st.markdown("""
 <style>
-body {
-    background: linear-gradient(180deg, #eef2f7 0%, #ffffff 100%);
-}
+body { background:#F5F7FA; }
 
-.header {
-    background: linear-gradient(135deg, #4A90E2, #6FC3FF);
-    padding: 18px;
-    border-radius: 16px;
-    color: white;
-    margin-bottom: 15px;
-}
-
-.card {
-    background: white;
-    padding: 16px;
-    border-radius: 16px;
-    margin-bottom: 14px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-}
-
-.section-title {
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-
-.ref {
-    font-size: 12px;
-    color: #888;
-    margin-bottom: 4px;
-}
-
-.total-box {
+.ref-box {
+    background:#EEF3FF;
+    padding:10px;
+    border-radius:10px;
     text-align:center;
-    padding:16px;
-    border-radius:16px;
-    background: linear-gradient(135deg, #E8F5E9, #D0F0D8);
     font-weight:bold;
-    font-size:20px;
 }
 
-button {
-    width:100%;
-    height:50px;
-    border-radius:12px;
-    font-size:16px;
+.row {
+    margin-bottom:10px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -86,67 +52,74 @@ def load_data():
     return supabase.table("budget").select("*").execute().data
 
 # -----------------------------
-# HEADER (MODERN)
+# HEADER
 # -----------------------------
-st.markdown('<div class="header">💰 Monthly Budget</div>', unsafe_allow_html=True)
+st.title("💰 Monthly Budget")
 
 month = st.text_input("Month", value=datetime.now().strftime("%B %Y"))
 
 # -----------------------------
-# INPUT SECTIONS
+# FIXED
 # -----------------------------
-st.markdown('<div class="card">', unsafe_allow_html=True)
-st.markdown('<div class="section-title">🏠 Fixed Expenses</div>', unsafe_allow_html=True)
+st.subheader("🏠 Fixed Expenses")
 
-rent = st.number_input("Rent", value=16000)
-abba = st.number_input("Abba", value=10000)
-loan = st.number_input("Loan", value=10000)
-ammi = st.number_input("Ammi", value=3000)
-maid = st.number_input("Maid", value=3000)
+def row_input(label, ref, key):
+    col1, col2 = st.columns([1,2])
+    with col1:
+        st.markdown(f'<div class="ref-box">₹{ref}</div>', unsafe_allow_html=True)
+    with col2:
+        val = st.number_input(label, value=ref, step=500, key=key)
+    return val
+
+rent = row_input("Rent",16000,"rent")
+abba = row_input("Abba",10000,"abba")
+loan = row_input("Loan",10000,"loan")
+ammi = row_input("Ammi",3000,"ammi")
+maid = row_input("Maid",3000,"maid")
 
 fixed_total = rent + abba + loan + ammi + maid
-st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown('<div class="card">', unsafe_allow_html=True)
-st.markdown('<div class="section-title">📊 Variable Expenses</div>', unsafe_allow_html=True)
+# -----------------------------
+# VARIABLE (wifi separate)
+# -----------------------------
+st.subheader("📊 Variable Expenses")
 
-groceries = st.number_input("Groceries (₹9000 ref)", value=9000)
-electricity = st.number_input("Electricity + WiFi (₹2000 ref)", value=2000)
-outside = st.number_input("Outside Food (₹5000 ref)", value=5000)
-misc = st.number_input("Miscellaneous (₹7000 ref)", value=7000)
+groceries = row_input("Groceries",9000,"gro")
+electricity = row_input("Electricity",1000,"elec")
+wifi = row_input("WiFi",1000,"wifi")
+outside = row_input("Outside Food",5000,"out")
+misc = row_input("Miscellaneous",7000,"misc")
 
-variable_total = groceries + electricity + outside + misc
+variable_total = groceries + electricity + wifi + outside + misc
 
 var_data = {
     "Groceries": groceries,
-    "Electricity": electricity,
+    "Electricity": electricity + wifi,
     "Outside Food": outside,
     "Miscellaneous": misc
 }
 
-st.markdown('</div>', unsafe_allow_html=True)
+# -----------------------------
+# INVESTMENT
+# -----------------------------
+st.subheader("📈 Investments")
 
-st.markdown('<div class="card">', unsafe_allow_html=True)
-st.markdown('<div class="section-title">📈 Investments</div>', unsafe_allow_html=True)
-
-bissi = st.number_input("Bissi", value=10000)
-sip = st.number_input("SIP", value=50000)
+bissi = row_input("Bissi",10000,"bissi")
+sip = row_input("SIP",50000,"sip")
 
 investment_total = bissi + sip
-st.markdown('</div>', unsafe_allow_html=True)
 
 # -----------------------------
 # TOTAL
 # -----------------------------
 grand_total = fixed_total + variable_total + investment_total
-
-st.markdown(f'<div class="total-box">Total: ₹{grand_total}</div>', unsafe_allow_html=True)
+st.metric("Total", f"₹{grand_total}")
 
 # -----------------------------
 # SAVE
 # -----------------------------
-if st.button("💾 Save Month Data"):
-    save_to_db(month, fixed_total, variable_total, investment_total, grand_total, var_data)
+if st.button("💾 Save"):
+    save_to_db(month,fixed_total,variable_total,investment_total,grand_total,var_data)
     st.success("Saved")
 
 # -----------------------------
@@ -157,38 +130,73 @@ data = load_data()
 if data:
     df = pd.DataFrame(data).sort_values("created_at")
 
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown("### 📈 Spending Trend")
+    # -----------------------------
+    # MULTI LINE CHART
+    # -----------------------------
+    st.subheader("📈 Trend")
 
     fig, ax = plt.subplots()
 
-    ax.plot(df["month"], df["grand_total"], linewidth=3, label="Total")
-    ax.plot(df["month"], df["variable_total"], linewidth=2, label="Variable")
-    ax.plot(df["month"], df["fixed_total"], linestyle="--", label="Fixed")
+    ax.plot(df["month"], df["grand_total"], label="Total", linewidth=3)
+    ax.plot(df["month"], df["fixed_total"], label="Fixed")
+    ax.plot(df["month"], df["variable_total"], label="Variable")
+    ax.plot(df["month"], df["investment_total"], label="Investment")
 
     ax.legend()
-    ax.grid(alpha=0.2)
-
+    ax.grid(alpha=0.3)
     st.pyplot(fig)
-    st.markdown('</div>', unsafe_allow_html=True)
 
     # -----------------------------
-    # INSIGHTS
+    # AI INSIGHTS
     # -----------------------------
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown("### 🤖 Smart Insight")
+    st.subheader("🤖 AI Insights")
 
     latest = df.iloc[-1]
-    prev = df.iloc[-2] if len(df) > 1 else None
+    prev = df.iloc[-2] if len(df)>1 else None
 
     text = ""
 
+    # change
     if prev is not None:
         diff = latest["grand_total"] - prev["grand_total"]
-        text += f"{'Increased' if diff>0 else 'Saved'} ₹{abs(int(diff))}. "
+        if diff > 0:
+            text += f"📈 Increased ₹{int(diff)}. "
+        else:
+            text += f"📉 Saved ₹{int(abs(diff))}. "
 
-    if latest["variable_total"] > 22000:
-        text += "Variable spending is high. "
+    # overspend
+    budget = {
+        "Groceries":9000,
+        "Electricity":2000,
+        "Outside Food":5000,
+        "Miscellaneous":7000
+    }
 
-    st.write(text)
-    st.markdown('</div>', unsafe_allow_html=True)
+    overspend = {}
+    for k,v in budget.items():
+        col = k.lower().replace(" ","_")
+        if latest[col] > v:
+            overspend[k] = latest[col] - v
+
+    if overspend:
+        worst = max(overspend, key=overspend.get)
+        text += f"🚨 Main issue: {worst}. "
+
+        total_waste = sum(overspend.values())
+        text += f"Save ₹{int(total_waste)}/month (~₹{int(total_waste*12)}/year). "
+
+    # prediction
+    if prev is not None:
+        trend = latest["grand_total"] - prev["grand_total"]
+        text += f"Next month approx ₹{int(latest['grand_total'] + trend)}."
+
+    st.info(text)
+
+    # -----------------------------
+    # ACTION PLAN
+    # -----------------------------
+    if overspend:
+        st.subheader("🎯 Action Plan")
+
+        for k,v in sorted(overspend.items(), key=lambda x:-x[1]):
+            st.write(f"Reduce {k} by ₹{int(v)}")
