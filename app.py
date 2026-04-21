@@ -193,6 +193,47 @@ data = load_data()
 if data:
     df = pd.DataFrame(data).sort_values("created_at")
 
+# -----------------------------
+    # 📊 FINANCIAL SCORE
+    # -----------------------------
+    st.subheader("📊 Financial Score")
+
+    score = 100
+
+    # Variable discipline
+    if latest["variable_total"] > 23000:
+        score -= 25
+    else:
+        score += 5
+
+    # Investment discipline (ONLY SIP)
+    if sip < 50000:
+        score -= 25
+    else:
+        score += 5
+
+    # Trend behavior
+    if prev is not None:
+        if latest["grand_total"] > prev["grand_total"]:
+            score -= 15
+        else:
+            score += 5
+
+    score = max(0, min(100, score))
+
+    if score >= 90:
+        status = "Excellent 🚀"
+    elif score >= 75:
+        status = "Good 👍"
+    elif score >= 60:
+        status = "Average ⚠️"
+    else:
+        status = "Needs Attention 🚨"
+
+    st.metric("Score", score)
+    st.write(status)
+
+
     st.subheader("📈 Trend")
 
     fig, ax = plt.subplots()
