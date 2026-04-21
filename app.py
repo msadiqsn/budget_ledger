@@ -9,38 +9,58 @@ import matplotlib.pyplot as plt
 # -----------------------------
 SUPABASE_URL =  "https://lmlzlilfoudxdtyvuhbz.supabase.co"
 SUPABASE_KEY =  "sb_publishable_uIw4d9MgIgoYfQkbXgIvgg_vYqGabBz"
-
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # -----------------------------
-# STYLE (PREMIUM)
+# MODERN STYLE
 # -----------------------------
 st.markdown("""
 <style>
-body { background:#F5F7FA; }
-
-.block {
-    padding:14px;
-    border-radius:12px;
-    margin-bottom:10px;
-    background:white;
-    box-shadow:0 2px 6px rgba(0,0,0,0.05);
+body {
+    background: linear-gradient(180deg, #eef2f7 0%, #ffffff 100%);
 }
 
-.label {
-    font-size:14px;
-    font-weight:500;
+.header {
+    background: linear-gradient(135deg, #4A90E2, #6FC3FF);
+    padding: 18px;
+    border-radius: 16px;
+    color: white;
+    margin-bottom: 15px;
+}
+
+.card {
+    background: white;
+    padding: 16px;
+    border-radius: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.section-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 8px;
 }
 
 .ref {
-    font-size:12px;
-    color:gray;
-    margin-bottom:4px;
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 4px;
+}
+
+.total-box {
+    text-align:center;
+    padding:16px;
+    border-radius:16px;
+    background: linear-gradient(135deg, #E8F5E9, #D0F0D8);
+    font-weight:bold;
+    font-size:20px;
 }
 
 button {
     width:100%;
     height:50px;
+    border-radius:12px;
     font-size:16px;
 }
 </style>
@@ -66,34 +86,34 @@ def load_data():
     return supabase.table("budget").select("*").execute().data
 
 # -----------------------------
-# HEADER
+# HEADER (MODERN)
 # -----------------------------
-st.title("💰 Monthly Budget")
+st.markdown('<div class="header">💰 Monthly Budget</div>', unsafe_allow_html=True)
 
 month = st.text_input("Month", value=datetime.now().strftime("%B %Y"))
 
 # -----------------------------
-# FIXED (EDITABLE + REF)
+# INPUT SECTIONS
 # -----------------------------
-st.subheader("🏠 Fixed")
+st.markdown('<div class="card">', unsafe_allow_html=True)
+st.markdown('<div class="section-title">🏠 Fixed Expenses</div>', unsafe_allow_html=True)
 
-rent = st.number_input("Rent (Ref ₹16000)", value=16000, step=500)
-abba = st.number_input("Abba (Ref ₹10000)", value=10000, step=500)
-loan = st.number_input("Loan (Ref ₹10000)", value=10000, step=500)
-ammi = st.number_input("Ammi (Ref ₹3000)", value=3000, step=500)
-maid = st.number_input("Maid (Ref ₹3000)", value=3000, step=500)
+rent = st.number_input("Rent", value=16000)
+abba = st.number_input("Abba", value=10000)
+loan = st.number_input("Loan", value=10000)
+ammi = st.number_input("Ammi", value=3000)
+maid = st.number_input("Maid", value=3000)
 
 fixed_total = rent + abba + loan + ammi + maid
+st.markdown('</div>', unsafe_allow_html=True)
 
-# -----------------------------
-# VARIABLE
-# -----------------------------
-st.subheader("📊 Variable")
+st.markdown('<div class="card">', unsafe_allow_html=True)
+st.markdown('<div class="section-title">📊 Variable Expenses</div>', unsafe_allow_html=True)
 
-groceries = st.number_input("Groceries (Ref ₹9000)", value=9000, step=500)
-electricity = st.number_input("Electricity + WiFi (Ref ₹2000)", value=2000, step=500)
-outside = st.number_input("Outside Food (Ref ₹5000)", value=5000, step=500)
-misc = st.number_input("Miscellaneous (Ref ₹7000)", value=7000, step=500)
+groceries = st.number_input("Groceries (₹9000 ref)", value=9000)
+electricity = st.number_input("Electricity + WiFi (₹2000 ref)", value=2000)
+outside = st.number_input("Outside Food (₹5000 ref)", value=5000)
+misc = st.number_input("Miscellaneous (₹7000 ref)", value=7000)
 
 variable_total = groceries + electricity + outside + misc
 
@@ -104,22 +124,23 @@ var_data = {
     "Miscellaneous": misc
 }
 
-# -----------------------------
-# INVESTMENTS
-# -----------------------------
-st.subheader("📈 Investments")
+st.markdown('</div>', unsafe_allow_html=True)
 
-bissi = st.number_input("Bissi (Ref ₹10000)", value=10000, step=500)
-sip = st.number_input("SIP (Ref ₹50000)", value=50000, step=500)
+st.markdown('<div class="card">', unsafe_allow_html=True)
+st.markdown('<div class="section-title">📈 Investments</div>', unsafe_allow_html=True)
+
+bissi = st.number_input("Bissi", value=10000)
+sip = st.number_input("SIP", value=50000)
 
 investment_total = bissi + sip
+st.markdown('</div>', unsafe_allow_html=True)
 
 # -----------------------------
 # TOTAL
 # -----------------------------
 grand_total = fixed_total + variable_total + investment_total
 
-st.metric("💰 Total Monthly Spend", f"₹{grand_total}")
+st.markdown(f'<div class="total-box">Total: ₹{grand_total}</div>', unsafe_allow_html=True)
 
 # -----------------------------
 # SAVE
@@ -136,28 +157,26 @@ data = load_data()
 if data:
     df = pd.DataFrame(data).sort_values("created_at")
 
-    # -----------------------------
-    # PREMIUM MULTI LINE CHART
-    # -----------------------------
-    st.subheader("📈 Spending Trend")
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown("### 📈 Spending Trend")
 
     fig, ax = plt.subplots()
 
-    ax.plot(df["month"], df["grand_total"], marker='o', linewidth=2, label="Total")
-    ax.plot(df["month"], df["fixed_total"], linestyle='--', label="Fixed")
-    ax.plot(df["month"], df["variable_total"], linestyle='--', label="Variable")
-    ax.plot(df["month"], df["investment_total"], linestyle='--', label="Investment")
+    ax.plot(df["month"], df["grand_total"], linewidth=3, label="Total")
+    ax.plot(df["month"], df["variable_total"], linewidth=2, label="Variable")
+    ax.plot(df["month"], df["fixed_total"], linestyle="--", label="Fixed")
 
-    ax.set_xticklabels(df["month"], rotation=30)
     ax.legend()
-    ax.grid(True, alpha=0.3)
+    ax.grid(alpha=0.2)
 
     st.pyplot(fig)
+    st.markdown('</div>', unsafe_allow_html=True)
 
     # -----------------------------
-    # SMART INSIGHTS
+    # INSIGHTS
     # -----------------------------
-    st.subheader("🤖 Smart Insight")
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown("### 🤖 Smart Insight")
 
     latest = df.iloc[-1]
     prev = df.iloc[-2] if len(df) > 1 else None
@@ -166,39 +185,10 @@ if data:
 
     if prev is not None:
         diff = latest["grand_total"] - prev["grand_total"]
-        if diff > 0:
-            text += f"Spending increased ₹{int(diff)}. "
-        else:
-            text += f"You saved ₹{int(abs(diff))}. "
+        text += f"{'Increased' if diff>0 else 'Saved'} ₹{abs(int(diff))}. "
 
-    budget = {
-        "Groceries": 9000,
-        "Electricity": 2000,
-        "Outside Food": 5000,
-        "Miscellaneous": 7000
-    }
+    if latest["variable_total"] > 22000:
+        text += "Variable spending is high. "
 
-    overspend = {}
-
-    for k,v in budget.items():
-        col = k.lower().replace(" ","_")
-        if latest[col] > v:
-            overspend[k] = latest[col] - v
-
-    if overspend:
-        worst = max(overspend, key=overspend.get)
-        text += f"Main issue: {worst}. "
-
-        total_waste = sum(overspend.values())
-        text += f"Save ₹{int(total_waste)}/month (~₹{int(total_waste*12)}/year)."
-
-    st.info(text)
-
-    # -----------------------------
-    # ACTION PLAN
-    # -----------------------------
-    if overspend:
-        st.subheader("🎯 Action Plan")
-
-        for k,v in sorted(overspend.items(), key=lambda x:-x[1]):
-            st.write(f"Reduce {k} by ₹{int(v)}")
+    st.write(text)
+    st.markdown('</div>', unsafe_allow_html=True)
