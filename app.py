@@ -276,13 +276,15 @@ if data:
     # -----------------------------
     # STEP-UP SIP
     # -----------------------------
+# === FIX STEP-UP LOGIC ===
+    # === CORRECT MONTHLY COMPOUNDING ORDER ===
     def fv_step_up(p, years, step):
         total = 0
         monthly = p
 
         for y in range(years):
             for m in range(12):
-                total = (total + monthly) * (1+r)
+                total = total * (1 + r) + monthly
             monthly *= (1 + step)
 
         return total
