@@ -23,7 +23,6 @@ st.markdown("""
     text-align:center;
     font-weight:600;
     font-size:13px;
-    background:rgba(255,255,255,0.08);
 }
 .good { color:#00C853; font-weight:600; }
 .bad { color:#FF5252; font-weight:600; }
@@ -51,7 +50,7 @@ def load_data():
     return supabase.table("budget").select("*").execute().data
 
 # -----------------------------
-# ROW INPUT
+# ROW
 # -----------------------------
 def row_input(label, ref, key):
     col1, col2, col3 = st.columns([1.3,1,1])
@@ -79,7 +78,7 @@ st.title("💰 Monthly Budget")
 month = st.text_input("Month", value=datetime.now().strftime("%B %Y"))
 
 # -----------------------------
-# FIXED (CORRECTED)
+# FIXED
 # -----------------------------
 st.subheader("🏠 Fixed")
 
@@ -90,14 +89,7 @@ ammi = row_input("Ammi",3000,"ammi")
 maid = row_input("Maid",3000,"maid")
 
 fixed_total = rent + abba + loan + ammi + maid
-fixed_ref = 42000  # ✅ corrected
-
-diff_fixed = fixed_total - fixed_ref
-
-if diff_fixed > 0:
-    st.markdown(f'<span class="bad">Fixed → Overspent ₹{diff_fixed}</span>', unsafe_allow_html=True)
-else:
-    st.markdown(f'<span class="good">Fixed → Saved ₹{abs(diff_fixed)}</span>', unsafe_allow_html=True)
+fixed_ref = 42000
 
 # -----------------------------
 # VARIABLE
@@ -112,13 +104,6 @@ misc = row_input("Miscellaneous",7000,"misc")
 
 variable_total = groceries + electricity + wifi + outside + misc
 variable_ref = 23000
-
-diff_var = variable_total - variable_ref
-
-if diff_var > 0:
-    st.markdown(f'<span class="bad">Variable → Overspent ₹{diff_var}</span>', unsafe_allow_html=True)
-else:
-    st.markdown(f'<span class="good">Variable → Saved ₹{abs(diff_var)}</span>', unsafe_allow_html=True)
 
 var_data = {
     "Groceries": groceries,
@@ -138,13 +123,6 @@ sip = row_input("SIP",50000,"sip")
 investment_total = bissi + sip
 investment_ref = 60000
 
-diff_inv = investment_total - investment_ref
-
-if diff_inv < 0:
-    st.markdown(f'<span class="warn">Need ₹{abs(diff_inv)} more investment</span>', unsafe_allow_html=True)
-else:
-    st.markdown(f'<span class="good">Investment on track</span>', unsafe_allow_html=True)
-
 # -----------------------------
 # TOTAL
 # -----------------------------
@@ -159,15 +137,15 @@ if st.button("💾 Save"):
     st.success("Saved")
 
 # -----------------------------
-# DATA + AI INSIGHTS
+# DATA + AI
 # -----------------------------
 data = load_data()
 
 if data:
     df = pd.DataFrame(data).sort_values("created_at")
 
-    # CHART
     st.subheader("📈 Trend")
+
     fig, ax = plt.subplots()
     ax.plot(df["month"], df["grand_total"], linewidth=3)
     ax.plot(df["month"], df["variable_total"])
@@ -176,7 +154,7 @@ if data:
     st.pyplot(fig)
 
     # -----------------------------
-    # AI INSIGHTS (FULL)
+    # AI INSIGHTS (ADVANCED)
     # -----------------------------
     st.subheader("🤖 Smart Insights")
 
@@ -186,7 +164,15 @@ if data:
     # CHANGE
     if prev is not None:
         diff = latest["grand_total"] - prev["grand_total"]
-        st.write("📈 Increased" if diff>0 else "📉 Saved", f"₹{abs(int(diff))}")
+        st.write("📈 Spending increased" if diff>0 else "📉 You saved", f"₹{abs(int(diff))}")
+
+    # RATIOS
+    total = latest["grand_total"]
+    fixed_pct = latest["fixed_total"]/total*100
+    variable_pct = latest["variable_total"]/total*100
+    invest_pct = latest["investment_total"]/total*100
+
+    st.write(f"📊 Fixed: {fixed_pct:.1f}% | Variable: {variable_pct:.1f}% | Investment: {invest_pct:.1f}%")
 
     # CATEGORY ANALYSIS
     budget = {
@@ -197,32 +183,38 @@ if data:
     }
 
     overspend = {}
-    good = []
-
     for k,v in budget.items():
         col = k.lower().replace(" ","_")
         if latest[col] > v:
             overspend[k] = latest[col] - v
-        else:
-            good.append(k)
 
     if overspend:
         worst = max(overspend, key=overspend.get)
         total_waste = sum(overspend.values())
 
-        st.write(f"🚨 Biggest issue: {worst}")
+        st.write(f"🚨 Biggest leak: {worst}")
         st.write(f"💸 Save ₹{total_waste}/month (~₹{total_waste*12}/year)")
 
-    if good:
-        st.write(f"✅ Good control: {', '.join(good)}")
+    # LIFESTYLE SIGNAL
+    if latest["outside_food"] > 5000:
+        st.write("🍔 High eating-out lifestyle detected")
+    if latest["miscellaneous"] > 7000:
+        st.write("📦 Misc expenses leaking money")
 
-    # SMART SUGGESTIONS
-    if "Outside Food" in overspend:
-        st.write("🍔 Reduce outside food by 20% → big savings")
-    if "Miscellaneous" in overspend:
-        st.write("📦 Track small spends — hidden leakage")
+    # INVESTMENT FEEDBACK (IMPROVED)
+    if investment_total > investment_ref:
+        extra = investment_total - investment_ref
+        st.success(f"🚀 Excellent! Investing ₹{extra} extra/month → strong wealth growth")
+    elif investment_total < investment_ref:
+        st.warning(f"⚠️ Invest ₹{investment_ref - investment_total} more to stay on track")
 
     # PREDICTION
     if prev is not None:
         trend = latest["grand_total"] - prev["grand_total"]
-        st.write(f"🔮 Next month ~₹{int(latest['grand_total'] + trend)}")
+        st.write(f"🔮 Next month expected ~₹{int(latest['grand_total'] + trend)}")
+
+    # FINAL ADVICE
+    st.markdown("### 🎯 Action Advice")
+    if overspend:
+        for k,v in overspend.items():
+            st.write(f"Reduce {k} by ₹{int(v)}")
