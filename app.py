@@ -256,29 +256,88 @@ if data:
     st.metric("Score", score)
     st.write(status)
 
+
+# -----------------------------
+    # 🎯 WEALTH PROJECTION (ADVANCED)
     # -----------------------------
-    # 🎯 WEALTH PROJECTION (SIP ONLY)
-    # -----------------------------
-    st.subheader("🎯 Wealth Projection (SIP)")
+    st.subheader("🎯 Wealth Projection")
+
+    st.caption("Assuming 12% annual return")
 
     monthly_sip = sip
-    rate = 12/100/12
+    r = 12/100/12  # monthly rate
 
-    def future_value(months):
-        return monthly_sip * (((1+rate)**months - 1)/rate)
+    # -----------------------------
+    # NORMAL SIP
+    # -----------------------------
+    def fv_sip(p, months):
+        return p * (((1+r)**months - 1)/r)
 
-    fv_5 = future_value(5*12)
-    fv_7 = future_value(7*12)
-    fv_10 = future_value(10*12)
+    # -----------------------------
+    # STEP-UP SIP
+    # -----------------------------
+    def fv_step_up(p, years, step):
+        total = 0
+        monthly = p
 
-    st.write(f"5 Years → ₹{format_inr(fv_5)}")
-    st.write(f"7 Years → ₹{format_inr(fv_7)}")
-    st.write(f"10 Years → ₹{format_inr(fv_10)}")
+        for y in range(years):
+            for m in range(12):
+                total = (total + monthly) * (1+r)
+            monthly *= (1 + step)
 
-    if monthly_sip >= 50000:
-        st.success("🚀 Strong SIP discipline — compounding working in your favor")
-    else:
-        st.warning("Increase SIP to accelerate long-term wealth")
+        return total
+
+    durations = [5, 7, 10]
+    steps = [0.05, 0.10, 0.15]
+
+    results = {}
+
+    for yrs in durations:
+        months = yrs * 12
+
+        flat = fv_sip(monthly_sip, months)
+        step_vals = [fv_step_up(monthly_sip, yrs, s) for s in steps]
+
+        st.markdown(f"**{yrs} Years:**")
+        st.write(f"• Flat SIP → ₹{format_inr(flat)}")
+        st.write(f"• Step-up 5% → ₹{format_inr(step_vals[0])}")
+        st.write(f"• Step-up 10% → ₹{format_inr(step_vals[1])} 🚀")
+        st.write(f"• Step-up 15% → ₹{format_inr(step_vals[2])}")
+        st.write("")
+
+        results[yrs] = flat
+
+    # -----------------------------
+    # REQUIRED SIP TABLE
+    # -----------------------------
+    st.markdown("### 📊 Required SIP for Same Growth (10 Years Target)")
+
+    target = fv_sip(monthly_sip, 10*12)
+
+    def required_sip(target, step):
+        sip_guess = 1000
+
+        while True:
+            val = fv_step_up(sip_guess, 10, step)
+            if val >= target:
+                return sip_guess
+            sip_guess += 500
+
+    req_5 = required_sip(target, 0.05)
+    req_10 = required_sip(target, 0.10)
+    req_15 = required_sip(target, 0.15)
+
+    table = pd.DataFrame({
+        "Step-up": ["5%", "10%", "15%"],
+        "Required SIP": [
+            f"₹{format_inr(req_5)}",
+            f"₹{format_inr(req_10)}",
+            f"₹{format_inr(req_15)}"
+        ]
+    })
+
+    st.table(table)
+
 
     st.subheader("📈 Trend")
 
