@@ -340,6 +340,15 @@ if data:
 
     st.table(table)
 
+# === SHOW REQUIRED SIP PROGRESSION ===
+    # === HELPS UNDERSTAND STEP-UP IMPACT ===
+    st.caption("Example progression (10% step-up):")
+
+    sip_progress = req_10
+    for y in range(1, 6):
+        st.caption(f"Year {y} → ₹{format_inr(sip_progress)}")
+        sip_progress *= 1.10
+
 
     st.subheader("📈 Trend")
 
