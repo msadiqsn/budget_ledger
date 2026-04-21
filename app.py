@@ -32,40 +32,40 @@ def load_data():
     return supabase.table("budget").select("*").execute().data
 
 # -----------------------------
-# ROW COMPONENT
+# COMPACT ROW
 # -----------------------------
 def row_input(label, ref, key):
 
-    st.markdown(f"### {label}")
+    col1, col2, col3 = st.columns([1.2, 1, 1])
 
-    col1, col2 = st.columns([0.4, 0.6])
-
+    # LABEL
     with col1:
+        st.markdown(f"**{label}**")
+
+    # REFERENCE
+    with col2:
         st.markdown(f"""
         <div style="
-            background:#D6E4FF;
-            padding:12px;
-            border-radius:10px;
+            background:#E6ECFF;
+            padding:6px;
+            border-radius:6px;
             text-align:center;
-            font-weight:bold;
+            font-weight:600;
+            font-size:13px;
         ">
             ₹{ref}
         </div>
         """, unsafe_allow_html=True)
 
-    with col2:
+    # INPUT
+    with col3:
         val = st.number_input("", value=ref, step=500, key=key)
 
-    percent = val / ref if ref else 0
-
-    if percent <= 1:
-        st.progress(percent)
-        st.markdown(f"<span style='color:green;'>Saved ₹{ref-val}</span>", unsafe_allow_html=True)
+    # SMALL TEXT (no big gap)
+    if val <= ref:
+        st.caption(f"Saved ₹{ref - val}")
     else:
-        st.progress(1.0)
-        st.markdown(f"<span style='color:red;'>Overspent ₹{val-ref}</span>", unsafe_allow_html=True)
-
-    st.markdown("---")
+        st.caption(f"Overspent ₹{val - ref}")
 
     return val
 
@@ -78,7 +78,7 @@ month = st.text_input("Month", value=datetime.now().strftime("%B %Y"))
 # -----------------------------
 # FIXED
 # -----------------------------
-st.header("🏠 Fixed Expenses")
+st.subheader("🏠 Fixed")
 
 rent = row_input("Rent",16000,"rent")
 abba = row_input("Abba",10000,"abba")
@@ -89,17 +89,15 @@ maid = row_input("Maid",3000,"maid")
 fixed_total = rent + abba + loan + ammi + maid
 fixed_ref = 43000
 
-diff_fixed = fixed_total - fixed_ref
-
-if diff_fixed > 0:
-    st.error(f"Fixed: Overspent ₹{diff_fixed}")
-else:
-    st.success(f"Fixed: Saved ₹{abs(diff_fixed)}")
+st.write(
+    f"**Fixed → Ref ₹{fixed_ref} | Actual ₹{fixed_total}** "
+    f"{'Overspent ₹'+str(fixed_total-fixed_ref) if fixed_total>fixed_ref else 'Saved ₹'+str(fixed_ref-fixed_total)}"
+)
 
 # -----------------------------
 # VARIABLE
 # -----------------------------
-st.header("📊 Variable Expenses")
+st.subheader("📊 Variable")
 
 groceries = row_input("Groceries",9000,"gro")
 electricity = row_input("Electricity",1000,"elec")
@@ -110,12 +108,10 @@ misc = row_input("Miscellaneous",7000,"misc")
 variable_total = groceries + electricity + wifi + outside + misc
 variable_ref = 23000
 
-diff_var = variable_total - variable_ref
-
-if diff_var > 0:
-    st.error(f"Variable: Overspent ₹{diff_var}")
-else:
-    st.success(f"Variable: Saved ₹{abs(diff_var)}")
+st.write(
+    f"**Variable → Ref ₹{variable_ref} | Actual ₹{variable_total}** "
+    f"{'Overspent ₹'+str(variable_total-variable_ref) if variable_total>variable_ref else 'Saved ₹'+str(variable_ref-variable_total)}"
+)
 
 var_data = {
     "Groceries": groceries,
@@ -127,7 +123,7 @@ var_data = {
 # -----------------------------
 # INVESTMENT
 # -----------------------------
-st.header("📈 Investment")
+st.subheader("📈 Investment")
 
 bissi = row_input("Bissi",10000,"bissi")
 sip = row_input("SIP",50000,"sip")
@@ -135,10 +131,8 @@ sip = row_input("SIP",50000,"sip")
 investment_total = bissi + sip
 investment_ref = 60000
 
-diff_inv = investment_total - investment_ref
-
-if diff_inv < 0:
-    st.warning(f"Invest ₹{abs(diff_inv)} more to reach target")
+if investment_total < investment_ref:
+    st.warning(f"Invest ₹{investment_ref-investment_total} more to reach goal")
 else:
     st.success("Investment on track")
 
@@ -146,17 +140,17 @@ else:
 # TOTAL
 # -----------------------------
 grand_total = fixed_total + variable_total + investment_total
-st.metric("💰 Total Spend", f"₹{grand_total}")
+st.metric("Total", f"₹{grand_total}")
 
 # -----------------------------
 # SAVE
 # -----------------------------
-if st.button("💾 Save Month"):
+if st.button("💾 Save"):
     save_to_db(month, fixed_total, variable_total, investment_total, grand_total, var_data)
     st.success("Saved")
 
 # -----------------------------
-# DATA + CHART
+# DATA + AI
 # -----------------------------
 data = load_data()
 
@@ -166,36 +160,24 @@ if data:
     st.subheader("📈 Trend")
 
     fig, ax = plt.subplots()
-
-    ax.plot(df["month"], df["grand_total"], label="Total", linewidth=3)
-    ax.plot(df["month"], df["fixed_total"], label="Fixed")
-    ax.plot(df["month"], df["variable_total"], label="Variable")
-    ax.plot(df["month"], df["investment_total"], label="Investment")
-
-    ax.legend()
-    ax.grid(alpha=0.3)
-
+    ax.plot(df["month"], df["grand_total"], linewidth=3)
+    ax.plot(df["month"], df["variable_total"])
+    ax.plot(df["month"], df["fixed_total"])
+    ax.legend(["Total","Variable","Fixed"])
     st.pyplot(fig)
 
     # -----------------------------
-    # 🤖 AI INSIGHTS
+    # AI INSIGHTS
     # -----------------------------
-    st.subheader("🤖 Smart Insights")
+    st.subheader("🤖 Insights")
 
     latest = df.iloc[-1]
-    prev = df.iloc[-2] if len(df) > 1 else None
+    prev = df.iloc[-2] if len(df)>1 else None
 
-    insights = []
-
-    # change
     if prev is not None:
         diff = latest["grand_total"] - prev["grand_total"]
-        if diff > 0:
-            insights.append(f"📈 Spending increased by ₹{int(diff)}")
-        else:
-            insights.append(f"📉 You saved ₹{int(abs(diff))}")
+        st.write("Increase" if diff>0 else "Saved", f"₹{abs(int(diff))}")
 
-    # overspend categories
     budget = {
         "Groceries":9000,
         "Electricity":2000,
@@ -211,36 +193,9 @@ if data:
 
     if overspend:
         worst = max(overspend, key=overspend.get)
-        total_waste = sum(overspend.values())
+        total = sum(overspend.values())
 
-        insights.append(f"🚨 Biggest issue: {worst}")
-        insights.append(f"💸 You can save ₹{int(total_waste)}/month (~₹{int(total_waste*12)}/year)")
+        st.write(f"Main issue: {worst}")
+        st.write(f"Save ₹{total}/month (~₹{total*12}/year)")
 
-    # good categories
-    good = [k for k in budget if k not in overspend]
-    if good:
-        insights.append(f"✅ Good control on: {', '.join(good)}")
-
-    # suggestions
-    if "Outside Food" in overspend:
-        insights.append("🍔 Reduce eating out by 20% to save significantly")
-    if "Miscellaneous" in overspend:
-        insights.append("📦 Track small expenses — they are leaking money")
-
-    # prediction
-    if prev is not None:
-        trend = latest["grand_total"] - prev["grand_total"]
-        next_month = latest["grand_total"] + trend
-        insights.append(f"🔮 Next month expected ~₹{int(next_month)}")
-
-    for i in insights:
-        st.write(i)
-
-    # -----------------------------
-    # ACTION PLAN
-    # -----------------------------
-    if overspend:
-        st.subheader("🎯 Action Plan")
-
-        for k,v in sorted(overspend.items(), key=lambda x:-x[1]):
-            st.write(f"Reduce {k} by ₹{int(v)}")
+    st.write("Tip: Reduce eating out & track misc expenses")
