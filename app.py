@@ -337,14 +337,24 @@ if data:
     for s in summary:
         st.write("•", s)
 
-    # -----------------------------
-    # ACTION PLAN
-    # -----------------------------
+
+# === ACTION PLAN SECTION ===
+
     st.markdown("### 🎯 Action Plan")
 
+    action_given = False
+
+    # Overspending fixes
     if overspend:
-        for k,v in sorted(overspend.items(), key=lambda x:-x[1]):
+        action_given = True
+        for k, v in sorted(overspend.items(), key=lambda x: -x[1]):
             st.write(f"Reduce {k} by ₹{int(v)}")
 
+    # Investment improvement (ONLY SIP logic)
     if latest["investment_total"] < 60000:
-        st.write("Increase SIP or Bissi contribution")
+        action_given = True
+        st.write("Increase SIP to improve long-term wealth")
+
+    # If everything is good
+    if not action_given:
+        st.success("All areas look good — maintain this discipline 👍")
