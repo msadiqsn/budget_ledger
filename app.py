@@ -278,6 +278,20 @@ if data:
 
     summary = []
 
+# === ADDITIONAL AI INSIGHTS ===
+
+    # Budget efficiency insight
+    if latest["variable_total"] < 20000:
+        summary.append("Excellent expense control — high savings potential")
+
+    # Balance insight
+    if latest["investment_total"] >= latest["variable_total"]:
+        summary.append("Healthy balance: investing as much as spending")
+
+    # Risk insight
+    if latest["fixed_total"] > 45000:
+        summary.append("High fixed commitments — reduces flexibility")
+
     # TREND
     if prev is not None:
         diff = latest["grand_total"] - prev["grand_total"]
