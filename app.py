@@ -234,6 +234,31 @@ if data:
     st.write(status)
 
 
+# -----------------------------
+    # 🎯 WEALTH PROJECTION (SIP ONLY)
+    # -----------------------------
+    st.subheader("🎯 Wealth Projection (SIP)")
+
+    monthly_sip = sip
+    rate = 12/100/12
+
+    def future_value(months):
+        return monthly_sip * (((1+rate)**months - 1)/rate)
+
+    fv_5 = future_value(5*12)
+    fv_7 = future_value(7*12)
+    fv_10 = future_value(10*12)
+
+    st.write(f"5 Years → ₹{int(fv_5):,}")
+    st.write(f"7 Years → ₹{int(fv_7):,}")
+    st.write(f"10 Years → ₹{int(fv_10):,}")
+
+    if monthly_sip >= 50000:
+        st.success("🚀 Strong SIP discipline — compounding working in your favor")
+    else:
+        st.warning("Increase SIP to accelerate long-term wealth")
+
+
     st.subheader("📈 Trend")
 
     fig, ax = plt.subplots()
