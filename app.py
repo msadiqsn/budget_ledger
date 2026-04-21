@@ -193,6 +193,9 @@ data = load_data()
 if data:
     df = pd.DataFrame(data).sort_values("created_at")
 
+    latest = df.iloc[-1]
+    prev = df.iloc[-2] if len(df) > 1 else None
+
 # -----------------------------
     # 📊 FINANCIAL SCORE
     # -----------------------------
