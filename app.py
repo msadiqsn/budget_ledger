@@ -5,6 +5,29 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 # -----------------------------
+# INDIAN NUMBER FORMAT
+# -----------------------------
+def format_inr(num):
+    num = int(num)
+    s = str(num)
+
+    if len(s) <= 3:
+        return s
+
+    last3 = s[-3:]
+    rest = s[:-3]
+
+    parts = []
+    while len(rest) > 2:
+        parts.insert(0, rest[-2:])
+        rest = rest[:-2]
+
+    if rest:
+        parts.insert(0, rest)
+
+    return ",".join(parts) + "," + last3
+
+# -----------------------------
 # SUPABASE
 # -----------------------------
 SUPABASE_URL = "https://lmlzlilfoudxdtyvuhbz.supabase.co"
@@ -59,7 +82,7 @@ def row_input(label, ref, key):
         st.write(label)
 
     with col2:
-        st.markdown(f'<div class="ref-box">₹{ref}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="ref-box">₹{format_inr(ref)}</div>', unsafe_allow_html=True)
 
     with col3:
         val = st.number_input("", value=ref, step=500, key=key)
@@ -100,12 +123,12 @@ diff_fixed = fixed_total - fixed_ref
 
 if diff_fixed <= 0:
     st.markdown(
-        f'<span class="good">Stable foundation 👍 You are within fixed budget (Saved ₹{abs(diff_fixed)})</span>',
+        f'<span class="good">Stable foundation 👍 You are within fixed budget (Saved ₹{format_inr(abs(diff_fixed))})</span>',
         unsafe_allow_html=True
     )
 else:
     st.markdown(
-        f'<span class="bad">Fixed costs increased by ₹{diff_fixed} — review commitments</span>',
+        f'<span class="bad">Fixed costs increased by ₹{format_inr(diff_fixed)} — review commitments</span>',
         unsafe_allow_html=True
     )
 
@@ -128,12 +151,12 @@ diff_var = variable_total - variable_ref
 if diff_var <= 0:
     saved = abs(diff_var)
     st.markdown(
-        f'<span class="good">Excellent control 🔥 Saved ₹{saved} this month (~₹{saved*12}/year impact)</span>',
+        f'<span class="good">Excellent control 🔥 Saved ₹{format_inr(saved)} this month (~₹{format_inr(saved*12)}/year impact)</span>',
         unsafe_allow_html=True
     )
 else:
     st.markdown(
-        f'<span class="bad">Overspending ₹{diff_var} — lifestyle leak detected</span>',
+        f'<span class="bad">Overspending ₹{format_inr(diff_var)} — lifestyle leak detected</span>',
         unsafe_allow_html=True
     )
 
@@ -158,7 +181,7 @@ investment_ref = 60000
 if investment_total > investment_ref:
     extra = investment_total - investment_ref
     st.markdown(
-        f'<span class="good">🚀 Strong wealth building! Extra ₹{extra} invested — this accelerates your future</span>',
+        f'<span class="good">🚀 Strong wealth building! Extra ₹{format_inr(extra)} invested — this accelerates your future</span>',
         unsafe_allow_html=True
     )
 elif investment_total == investment_ref:
@@ -168,7 +191,7 @@ elif investment_total == investment_ref:
     )
 else:
     st.markdown(
-        f'<span class="warn">Increase investment by ₹{investment_ref - investment_total} to stay on track</span>',
+        f'<span class="warn">Increase investment by ₹{format_inr(investment_ref - investment_total)} to stay on track</span>',
         unsafe_allow_html=True
     )
 
@@ -176,7 +199,7 @@ else:
 # TOTAL
 # -----------------------------
 grand_total = fixed_total + variable_total + investment_total
-st.metric("💰 Total", f"₹{grand_total}")
+st.metric("💰 Total", f"₹{format_inr(grand_total)}")
 
 # -----------------------------
 # SAVE
@@ -196,26 +219,23 @@ if data:
     latest = df.iloc[-1]
     prev = df.iloc[-2] if len(df) > 1 else None
 
-# -----------------------------
+    # -----------------------------
     # 📊 FINANCIAL SCORE
     # -----------------------------
     st.subheader("📊 Financial Score")
 
     score = 100
 
-    # Variable discipline
     if latest["variable_total"] > 23000:
         score -= 25
     else:
         score += 5
 
-    # Investment discipline (ONLY SIP)
     if sip < 50000:
         score -= 25
     else:
         score += 5
 
-    # Trend behavior
     if prev is not None:
         if latest["grand_total"] > prev["grand_total"]:
             score -= 15
@@ -236,8 +256,7 @@ if data:
     st.metric("Score", score)
     st.write(status)
 
-
-# -----------------------------
+    # -----------------------------
     # 🎯 WEALTH PROJECTION (SIP ONLY)
     # -----------------------------
     st.subheader("🎯 Wealth Projection (SIP)")
@@ -252,15 +271,14 @@ if data:
     fv_7 = future_value(7*12)
     fv_10 = future_value(10*12)
 
-    st.write(f"5 Years → ₹{int(fv_5):,}")
-    st.write(f"7 Years → ₹{int(fv_7):,}")
-    st.write(f"10 Years → ₹{int(fv_10):,}")
+    st.write(f"5 Years → ₹{format_inr(fv_5)}")
+    st.write(f"7 Years → ₹{format_inr(fv_7)}")
+    st.write(f"10 Years → ₹{format_inr(fv_10)}")
 
     if monthly_sip >= 50000:
         st.success("🚀 Strong SIP discipline — compounding working in your favor")
     else:
         st.warning("Increase SIP to accelerate long-term wealth")
-
 
     st.subheader("📈 Trend")
 
@@ -272,38 +290,19 @@ if data:
     st.pyplot(fig)
 
     # -----------------------------
-    # AI INSIGHTS (STRONG)
+    # AI INSIGHTS
     # -----------------------------
     st.subheader("🤖 Smart Insights")
 
-    latest = df.iloc[-1]
-    prev = df.iloc[-2] if len(df)>1 else None
-
     summary = []
 
-# === ADDITIONAL AI INSIGHTS ===
-
-    # Budget efficiency insight
-    if latest["variable_total"] < 20000:
-        summary.append("Excellent expense control — high savings potential")
-
-    # Balance insight
-    if latest["investment_total"] >= latest["variable_total"]:
-        summary.append("Healthy balance: investing as much as spending")
-
-    # Risk insight
-    if latest["fixed_total"] > 45000:
-        summary.append("High fixed commitments — reduces flexibility")
-
-    # TREND
     if prev is not None:
         diff = latest["grand_total"] - prev["grand_total"]
         if diff > 0:
-            summary.append(f"Spending increased by ₹{int(diff)}")
+            summary.append(f"Spending increased by ₹{format_inr(diff)}")
         else:
-            summary.append(f"You improved savings by ₹{int(abs(diff))}")
+            summary.append(f"You improved savings by ₹{format_inr(abs(diff))}")
 
-    # CATEGORY ANALYSIS
     budget = {
         "Groceries":9000,
         "Electricity":2000,
@@ -318,46 +317,27 @@ if data:
             overspend[k] = latest[col] - v
 
     if overspend:
-        worst = max(overspend, key=overspend.get)
         total_waste = sum(overspend.values())
+        summary.append(f"Potential saving ₹{format_inr(total_waste)}/month (~₹{format_inr(total_waste*12)}/year)")
 
-        summary.append(f"Biggest leak: {worst}")
-        summary.append(f"Potential saving ₹{total_waste}/month (~₹{total_waste*12}/year)")
-
-    # LIFESTYLE
-    if latest["outside_food"] > 5000:
-        summary.append("Frequent eating out increasing expenses")
-    if latest["miscellaneous"] > 7000:
-        summary.append("Untracked misc spending detected")
-
-    # INVESTMENT
-    if latest["investment_total"] > 60000:
-        summary.append("Strong investment discipline")
-    else:
-        summary.append("Investment can be improved")
-
-    # OUTPUT
     for s in summary:
         st.write("•", s)
 
-
-# === ACTION PLAN SECTION ===
-
+    # -----------------------------
+    # ACTION PLAN
+    # -----------------------------
     st.markdown("### 🎯 Action Plan")
 
     action_given = False
 
-    # Overspending fixes
     if overspend:
         action_given = True
         for k, v in sorted(overspend.items(), key=lambda x: -x[1]):
-            st.write(f"Reduce {k} by ₹{int(v)}")
+            st.write(f"Reduce {k} by ₹{format_inr(v)}")
 
-    # Investment improvement (ONLY SIP logic)
     if latest["investment_total"] < 60000:
         action_given = True
         st.write("Increase SIP to improve long-term wealth")
 
-    # If everything is good
     if not action_given:
         st.success("All areas look good — maintain this discipline 👍")
