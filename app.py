@@ -12,6 +12,27 @@ SUPABASE_KEY =  "sb_publishable_uIw4d9MgIgoYfQkbXgIvgg_vYqGabBz"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # -----------------------------
+# STYLE (FIXED FOR MOBILE)
+# -----------------------------
+st.markdown("""
+<style>
+.ref-box {
+    background:#DCE6FF;
+    padding:10px;
+    border-radius:10px;
+    text-align:center;
+    font-weight:bold;
+    font-size:15px;
+}
+
+.progress-text {
+    font-size:12px;
+    margin-top:2px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# -----------------------------
 # FUNCTIONS
 # -----------------------------
 def save_to_db(month, fixed, variable, investment, total, var_data):
@@ -31,44 +52,53 @@ def load_data():
     return supabase.table("budget").select("*").execute().data
 
 # -----------------------------
-# UI
-# -----------------------------
-st.title("💰 Monthly Budget")
-month = st.text_input("Month", value=datetime.now().strftime("%B %Y"))
-
-# -----------------------------
-# ROW WITH PROGRESS BAR
+# PERFECT ROW FUNCTION
 # -----------------------------
 def row_input(label, ref, key):
-    col1, col2 = st.columns([1,2], gap="small")
 
+    col1, col2 = st.columns([0.35, 0.65])
+
+    # LEFT = REFERENCE
     with col1:
-        st.markdown(f"""
-        <div style="
-            background:#EEF3FF;
-            padding:12px;
-            border-radius:10px;
-            text-align:center;
-            font-weight:bold;
-        ">
-            ₹{ref}
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="ref-box">₹{ref}</div>',
+            unsafe_allow_html=True
+        )
 
+    # RIGHT = INPUT
     with col2:
-        val = st.number_input(label, value=ref, step=500, key=key)
+        val = st.number_input(
+            label,
+            value=ref,
+            step=500,
+            key=key,
+            label_visibility="collapsed"
+        )
 
-    # progress logic
+    # ---------- PROGRESS ----------
     percent = val / ref if ref else 0
 
     if percent <= 1:
         st.progress(percent)
-        st.markdown(f"<span style='color:green;'>₹{ref - val} saved</span>", unsafe_allow_html=True)
+        st.markdown(
+            f"<div class='progress-text' style='color:green;'>Saved ₹{ref - val}</div>",
+            unsafe_allow_html=True
+        )
     else:
         st.progress(1.0)
-        st.markdown(f"<span style='color:red;'>Overspent ₹{val - ref}</span>", unsafe_allow_html=True)
+        st.markdown(
+            f"<div class='progress-text' style='color:red;'>Overspent ₹{val - ref}</div>",
+            unsafe_allow_html=True
+        )
 
     return val
+
+# -----------------------------
+# HEADER
+# -----------------------------
+st.title("💰 Monthly Budget")
+
+month = st.text_input("Month", value=datetime.now().strftime("%B %Y"))
 
 # -----------------------------
 # FIXED
@@ -163,10 +193,7 @@ if data:
 
     if prev is not None:
         diff = latest["grand_total"] - prev["grand_total"]
-        if diff > 0:
-            text += f"📈 Increased ₹{int(diff)}. "
-        else:
-            text += f"📉 Saved ₹{int(abs(diff))}. "
+        text += f"{'Increased' if diff>0 else 'Saved'} ₹{abs(int(diff))}. "
 
     budget = {
         "Groceries":9000,
@@ -184,9 +211,9 @@ if data:
 
     if overspend:
         worst = max(overspend, key=overspend.get)
-        text += f"🚨 Main issue: {worst}. "
-
         total_waste = sum(overspend.values())
+
+        text += f"Main issue: {worst}. "
         text += f"Save ₹{int(total_waste)}/month (~₹{int(total_waste*12)}/year). "
 
     if prev is not None:
