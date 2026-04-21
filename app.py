@@ -12,27 +12,6 @@ SUPABASE_KEY =  "sb_publishable_uIw4d9MgIgoYfQkbXgIvgg_vYqGabBz"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # -----------------------------
-# STYLE
-# -----------------------------
-st.markdown("""
-<style>
-body { background:#F5F7FA; }
-
-.ref-box {
-    background:#EEF3FF;
-    padding:10px;
-    border-radius:10px;
-    text-align:center;
-    font-weight:bold;
-}
-
-.row {
-    margin-bottom:10px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# -----------------------------
 # FUNCTIONS
 # -----------------------------
 def save_to_db(month, fixed, variable, investment, total, var_data):
@@ -52,24 +31,49 @@ def load_data():
     return supabase.table("budget").select("*").execute().data
 
 # -----------------------------
-# HEADER
+# UI
 # -----------------------------
 st.title("💰 Monthly Budget")
-
 month = st.text_input("Month", value=datetime.now().strftime("%B %Y"))
+
+# -----------------------------
+# ROW WITH PROGRESS BAR
+# -----------------------------
+def row_input(label, ref, key):
+    col1, col2 = st.columns([1,2], gap="small")
+
+    with col1:
+        st.markdown(f"""
+        <div style="
+            background:#EEF3FF;
+            padding:12px;
+            border-radius:10px;
+            text-align:center;
+            font-weight:bold;
+        ">
+            ₹{ref}
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        val = st.number_input(label, value=ref, step=500, key=key)
+
+    # progress logic
+    percent = val / ref if ref else 0
+
+    if percent <= 1:
+        st.progress(percent)
+        st.markdown(f"<span style='color:green;'>₹{ref - val} saved</span>", unsafe_allow_html=True)
+    else:
+        st.progress(1.0)
+        st.markdown(f"<span style='color:red;'>Overspent ₹{val - ref}</span>", unsafe_allow_html=True)
+
+    return val
 
 # -----------------------------
 # FIXED
 # -----------------------------
-st.subheader("🏠 Fixed Expenses")
-
-def row_input(label, ref, key):
-    col1, col2 = st.columns([1,2])
-    with col1:
-        st.markdown(f'<div class="ref-box">₹{ref}</div>', unsafe_allow_html=True)
-    with col2:
-        val = st.number_input(label, value=ref, step=500, key=key)
-    return val
+st.subheader("🏠 Fixed")
 
 rent = row_input("Rent",16000,"rent")
 abba = row_input("Abba",10000,"abba")
@@ -82,7 +86,7 @@ fixed_total = rent + abba + loan + ammi + maid
 # -----------------------------
 # VARIABLE (wifi separate)
 # -----------------------------
-st.subheader("📊 Variable Expenses")
+st.subheader("📊 Variable")
 
 groceries = row_input("Groceries",9000,"gro")
 electricity = row_input("Electricity",1000,"elec")
@@ -102,7 +106,7 @@ var_data = {
 # -----------------------------
 # INVESTMENT
 # -----------------------------
-st.subheader("📈 Investments")
+st.subheader("📈 Investment")
 
 bissi = row_input("Bissi",10000,"bissi")
 sip = row_input("SIP",50000,"sip")
@@ -113,12 +117,12 @@ investment_total = bissi + sip
 # TOTAL
 # -----------------------------
 grand_total = fixed_total + variable_total + investment_total
-st.metric("Total", f"₹{grand_total}")
+st.metric("Total Monthly Spend", f"₹{grand_total}")
 
 # -----------------------------
 # SAVE
 # -----------------------------
-if st.button("💾 Save"):
+if st.button("💾 Save Month"):
     save_to_db(month,fixed_total,variable_total,investment_total,grand_total,var_data)
     st.success("Saved")
 
@@ -131,7 +135,7 @@ if data:
     df = pd.DataFrame(data).sort_values("created_at")
 
     # -----------------------------
-    # MULTI LINE CHART
+    # CHART
     # -----------------------------
     st.subheader("📈 Trend")
 
@@ -144,19 +148,19 @@ if data:
 
     ax.legend()
     ax.grid(alpha=0.3)
+
     st.pyplot(fig)
 
     # -----------------------------
     # AI INSIGHTS
     # -----------------------------
-    st.subheader("🤖 AI Insights")
+    st.subheader("🤖 Insights")
 
     latest = df.iloc[-1]
     prev = df.iloc[-2] if len(df)>1 else None
 
     text = ""
 
-    # change
     if prev is not None:
         diff = latest["grand_total"] - prev["grand_total"]
         if diff > 0:
@@ -164,7 +168,6 @@ if data:
         else:
             text += f"📉 Saved ₹{int(abs(diff))}. "
 
-    # overspend
     budget = {
         "Groceries":9000,
         "Electricity":2000,
@@ -173,6 +176,7 @@ if data:
     }
 
     overspend = {}
+
     for k,v in budget.items():
         col = k.lower().replace(" ","_")
         if latest[col] > v:
@@ -185,10 +189,9 @@ if data:
         total_waste = sum(overspend.values())
         text += f"Save ₹{int(total_waste)}/month (~₹{int(total_waste*12)}/year). "
 
-    # prediction
     if prev is not None:
         trend = latest["grand_total"] - prev["grand_total"]
-        text += f"Next month approx ₹{int(latest['grand_total'] + trend)}."
+        text += f"Next month ~₹{int(latest['grand_total'] + trend)}."
 
     st.info(text)
 
