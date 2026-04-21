@@ -256,36 +256,41 @@ if data:
     st.metric("Score", score)
     st.write(status)
 
-    # -----------------------------
-    # 🎯 WEALTH PROJECTION
+
+# -----------------------------
+    # 🎯 WEALTH PROJECTION (ADVANCED)
     # -----------------------------
     st.subheader("🎯 Wealth Projection")
+
     st.caption("Assuming 12% annual return")
 
     monthly_sip = sip
-    r = 12/100/12
+    r = 12/100/12  # monthly rate
 
+    # -----------------------------
+    # NORMAL SIP
+    # -----------------------------
     def fv_sip(p, months):
         return p * (((1+r)**months - 1)/r)
 
-    # ✅ FIXED FUNCTION
+    # -----------------------------
+    # STEP-UP SIP
+    # -----------------------------
     def fv_step_up(p, years, step):
         total = 0
-        total_months = years * 12
-        current_sip = p
+        monthly = p
 
         for y in range(years):
             for m in range(12):
-                month_index = y * 12 + m
-                remaining_months = total_months - month_index
-                total += current_sip * ((1 + r) ** remaining_months)
-
-            current_sip *= (1 + step)
+                total = (total + monthly) * (1+r)
+            monthly *= (1 + step)
 
         return total
 
     durations = [5, 7, 10]
     steps = [0.05, 0.10, 0.15]
+
+    results = {}
 
     for yrs in durations:
         months = yrs * 12
@@ -300,6 +305,8 @@ if data:
         st.write(f"• Step-up 15% → ₹{format_inr(step_vals[2])}")
         st.write("")
 
+        results[yrs] = flat
+
     # -----------------------------
     # REQUIRED SIP TABLE
     # -----------------------------
@@ -309,21 +316,28 @@ if data:
 
     def required_sip(target, step):
         sip_guess = 1000
+
         while True:
-            if fv_step_up(sip_guess, 10, step) >= target:
+            val = fv_step_up(sip_guess, 10, step)
+            if val >= target:
                 return sip_guess
             sip_guess += 500
+
+    req_5 = required_sip(target, 0.05)
+    req_10 = required_sip(target, 0.10)
+    req_15 = required_sip(target, 0.15)
 
     table = pd.DataFrame({
         "Step-up": ["5%", "10%", "15%"],
         "Required SIP": [
-            f"₹{format_inr(required_sip(target, 0.05))}",
-            f"₹{format_inr(required_sip(target, 0.10))}",
-            f"₹{format_inr(required_sip(target, 0.15))}"
+            f"₹{format_inr(req_5)}",
+            f"₹{format_inr(req_10)}",
+            f"₹{format_inr(req_15)}"
         ]
     })
 
     st.table(table)
+
 
     st.subheader("📈 Trend")
 
@@ -334,16 +348,55 @@ if data:
     ax.legend(["Total","Variable","Fixed"])
     st.pyplot(fig)
 
+    # -----------------------------
+    # AI INSIGHTS
+    # -----------------------------
     st.subheader("🤖 Smart Insights")
 
     summary = []
 
     if prev is not None:
         diff = latest["grand_total"] - prev["grand_total"]
-        summary.append(f"Spending changed by ₹{format_inr(abs(diff))}")
+        if diff > 0:
+            summary.append(f"Spending increased by ₹{format_inr(diff)}")
+        else:
+            summary.append(f"You improved savings by ₹{format_inr(abs(diff))}")
+
+    budget = {
+        "Groceries":9000,
+        "Electricity":2000,
+        "Outside Food":5000,
+        "Miscellaneous":7000
+    }
+
+    overspend = {}
+    for k,v in budget.items():
+        col = k.lower().replace(" ","_")
+        if latest[col] > v:
+            overspend[k] = latest[col] - v
+
+    if overspend:
+        total_waste = sum(overspend.values())
+        summary.append(f"Potential saving ₹{format_inr(total_waste)}/month (~₹{format_inr(total_waste*12)}/year)")
 
     for s in summary:
         st.write("•", s)
 
+    # -----------------------------
+    # ACTION PLAN
+    # -----------------------------
     st.markdown("### 🎯 Action Plan")
-    st.success("Keep consistency and increase SIP gradually 🚀")
+
+    action_given = False
+
+    if overspend:
+        action_given = True
+        for k, v in sorted(overspend.items(), key=lambda x: -x[1]):
+            st.write(f"Reduce {k} by ₹{format_inr(v)}")
+
+    if latest["investment_total"] < 60000:
+        action_given = True
+        st.write("Increase SIP to improve long-term wealth")
+
+    if not action_given:
+        st.success("All areas look good — maintain this discipline 👍")
