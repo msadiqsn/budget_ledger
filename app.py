@@ -9,8 +9,37 @@ import matplotlib.pyplot as plt
 # -----------------------------
 SUPABASE_URL = "https://lmlzlilfoudxdtyvuhbz.supabase.co"
 SUPABASE_KEY = "sb_publishable_uIw4d9MgIgoYfQkbXgIvgg_vYqGabBz"
-
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# -----------------------------
+# DARK/LIGHT SAFE STYLE
+# -----------------------------
+st.markdown("""
+<style>
+.ref-box {
+    border:1px solid rgba(128,128,128,0.4);
+    padding:6px;
+    border-radius:8px;
+    text-align:center;
+    font-weight:600;
+    font-size:13px;
+    background:rgba(255,255,255,0.08);
+}
+
+.summary-good {
+    color:#00C853;
+    font-weight:600;
+}
+.summary-bad {
+    color:#FF5252;
+    font-weight:600;
+}
+.summary-warn {
+    color:#FFA000;
+    font-weight:600;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # -----------------------------
 # FUNCTIONS
@@ -36,32 +65,17 @@ def load_data():
 # -----------------------------
 def row_input(label, ref, key):
 
-    col1, col2, col3 = st.columns([1.2, 1, 1])
+    col1, col2, col3 = st.columns([1.3, 1, 1])
 
-    # LABEL
     with col1:
         st.markdown(f"**{label}**")
 
-    # REFERENCE
     with col2:
-        st.markdown(f"""
-        <div style="
-            background:#E6ECFF;
-            padding:6px;
-            border-radius:6px;
-            text-align:center;
-            font-weight:600;
-            font-size:13px;
-        ">
-            ₹{ref}
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(f'<div class="ref-box">₹{ref}</div>', unsafe_allow_html=True)
 
-    # INPUT
     with col3:
         val = st.number_input("", value=ref, step=500, key=key)
 
-    # SMALL TEXT (no big gap)
     if val <= ref:
         st.caption(f"Saved ₹{ref - val}")
     else:
@@ -88,11 +102,18 @@ maid = row_input("Maid",3000,"maid")
 
 fixed_total = rent + abba + loan + ammi + maid
 fixed_ref = 43000
+diff_fixed = fixed_total - fixed_ref
 
-st.write(
-    f"**Fixed → Ref ₹{fixed_ref} | Actual ₹{fixed_total}** "
-    f"{'Overspent ₹'+str(fixed_total-fixed_ref) if fixed_total>fixed_ref else 'Saved ₹'+str(fixed_ref-fixed_total)}"
-)
+if diff_fixed > 0:
+    st.markdown(
+        f'<span class="summary-bad">Fixed → Ref ₹{fixed_ref} | Actual ₹{fixed_total} | Overspent ₹{diff_fixed}</span>',
+        unsafe_allow_html=True
+    )
+else:
+    st.markdown(
+        f'<span class="summary-good">Fixed → Ref ₹{fixed_ref} | Actual ₹{fixed_total} | Saved ₹{abs(diff_fixed)}</span>',
+        unsafe_allow_html=True
+    )
 
 # -----------------------------
 # VARIABLE
@@ -107,11 +128,18 @@ misc = row_input("Miscellaneous",7000,"misc")
 
 variable_total = groceries + electricity + wifi + outside + misc
 variable_ref = 23000
+diff_var = variable_total - variable_ref
 
-st.write(
-    f"**Variable → Ref ₹{variable_ref} | Actual ₹{variable_total}** "
-    f"{'Overspent ₹'+str(variable_total-variable_ref) if variable_total>variable_ref else 'Saved ₹'+str(variable_ref-variable_total)}"
-)
+if diff_var > 0:
+    st.markdown(
+        f'<span class="summary-bad">Variable → Ref ₹{variable_ref} | Actual ₹{variable_total} | Overspent ₹{diff_var}</span>',
+        unsafe_allow_html=True
+    )
+else:
+    st.markdown(
+        f'<span class="summary-good">Variable → Ref ₹{variable_ref} | Actual ₹{variable_total} | Saved ₹{abs(diff_var)}</span>',
+        unsafe_allow_html=True
+    )
 
 var_data = {
     "Groceries": groceries,
@@ -130,17 +158,24 @@ sip = row_input("SIP",50000,"sip")
 
 investment_total = bissi + sip
 investment_ref = 60000
+diff_inv = investment_total - investment_ref
 
-if investment_total < investment_ref:
-    st.warning(f"Invest ₹{investment_ref-investment_total} more to reach goal")
+if diff_inv < 0:
+    st.markdown(
+        f'<span class="summary-warn">Investment → Target ₹{investment_ref} | Actual ₹{investment_total} | Need ₹{abs(diff_inv)} more</span>',
+        unsafe_allow_html=True
+    )
 else:
-    st.success("Investment on track")
+    st.markdown(
+        f'<span class="summary-good">Investment → Target ₹{investment_ref} | Actual ₹{investment_total}</span>',
+        unsafe_allow_html=True
+    )
 
 # -----------------------------
 # TOTAL
 # -----------------------------
 grand_total = fixed_total + variable_total + investment_total
-st.metric("Total", f"₹{grand_total}")
+st.metric("💰 Total", f"₹{grand_total}")
 
 # -----------------------------
 # SAVE
@@ -176,7 +211,7 @@ if data:
 
     if prev is not None:
         diff = latest["grand_total"] - prev["grand_total"]
-        st.write("Increase" if diff>0 else "Saved", f"₹{abs(int(diff))}")
+        st.write("📈 Increased" if diff>0 else "📉 Saved", f"₹{abs(int(diff))}")
 
     budget = {
         "Groceries":9000,
@@ -195,7 +230,7 @@ if data:
         worst = max(overspend, key=overspend.get)
         total = sum(overspend.values())
 
-        st.write(f"Main issue: {worst}")
-        st.write(f"Save ₹{total}/month (~₹{total*12}/year)")
+        st.write(f"🚨 Biggest issue: {worst}")
+        st.write(f"💸 Save ₹{total}/month (~₹{total*12}/year)")
 
-    st.write("Tip: Reduce eating out & track misc expenses")
+    st.write("💡 Tip: Control outside food & miscellaneous spending")
