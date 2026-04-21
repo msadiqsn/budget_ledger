@@ -305,6 +305,23 @@ if data:
         st.write(f"• Step-up 5% → ₹{format_inr(step_vals[0])}")
         st.write(f"• Step-up 10% → ₹{format_inr(step_vals[1])} 🚀")
         st.write(f"• Step-up 15% → ₹{format_inr(step_vals[2])}")
+
+# === SIP GROWTH DISPLAY START ===
+        # === YEAR-WISE SIP FOR ALL STEP-UPS ===
+        st.caption("Monthly SIP Growth:")
+
+        steps_display = [(0.05, "5%"), (0.10, "10%"), (0.15, "15%")]
+
+        for step_val, label in steps_display:
+            st.caption(f"Step-up {label}:")
+
+            sip_progress = monthly_sip
+            for y in range(1, yrs + 1):
+                st.caption(f"Year {y} → ₹{format_inr(sip_progress)}")
+                sip_progress *= (1 + step_val)
+
+            st.caption("")
+
         st.write("")
 
         results[yrs] = flat
