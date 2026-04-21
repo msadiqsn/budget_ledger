@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
 from supabase import create_client
-from datetime import datetime
 import matplotlib.pyplot as plt
+from datetime import datetime
 
 # -----------------------------
 # SUPABASE
@@ -12,7 +12,7 @@ SUPABASE_KEY = "sb_publishable_uIw4d9MgIgoYfQkbXgIvgg_vYqGabBz"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # -----------------------------
-# STYLE (COLOR FIX)
+# STYLE
 # -----------------------------
 st.markdown("""
 <style>
@@ -24,7 +24,6 @@ st.markdown("""
     font-weight:600;
     font-size:13px;
 }
-
 .good { color:#00C853; font-weight:600; }
 .bad { color:#FF5252; font-weight:600; }
 .warn { color:#FFA000; font-weight:600; }
@@ -51,11 +50,10 @@ def load_data():
     return supabase.table("budget").select("*").execute().data
 
 # -----------------------------
-# ROW INPUT (CLEAN)
+# ROW
 # -----------------------------
 def row_input(label, ref, key):
-
-    col1, col2, col3 = st.columns([1.2, 1, 1])
+    col1, col2, col3 = st.columns([1.2,1,1])
 
     with col1:
         st.markdown(f"**{label}**")
@@ -72,7 +70,17 @@ def row_input(label, ref, key):
 # HEADER
 # -----------------------------
 st.title("💰 Monthly Budget")
-month = st.text_input("Month", value=datetime.now().strftime("%B %Y"))
+
+months = ["January","February","March","April","May","June","July","August","September","October","November","December"]
+years = list(range(2024, 2035))
+
+col1, col2 = st.columns(2)
+with col1:
+    selected_month = st.selectbox("Month", months)
+with col2:
+    selected_year = st.selectbox("Year", years)
+
+month = f"{selected_month} {selected_year}"
 
 # -----------------------------
 # FIXED
@@ -88,13 +96,6 @@ maid = row_input("Maid",3000,"maid")
 fixed_total = rent + abba + loan + ammi + maid
 fixed_ref = 42000
 
-diff_fixed = fixed_total - fixed_ref
-
-if diff_fixed > 0:
-    st.markdown(f'<span class="bad">Fixed → Overspent ₹{diff_fixed}</span>', unsafe_allow_html=True)
-else:
-    st.markdown(f'<span class="good">Fixed → Saved ₹{abs(diff_fixed)}</span>', unsafe_allow_html=True)
-
 # -----------------------------
 # VARIABLE
 # -----------------------------
@@ -109,12 +110,20 @@ misc = row_input("Miscellaneous",7000,"misc")
 variable_total = groceries + electricity + wifi + outside + misc
 variable_ref = 23000
 
+# MOTIVATION
 diff_var = variable_total - variable_ref
 
-if diff_var > 0:
-    st.markdown(f'<span class="bad">Variable → Overspent ₹{diff_var}</span>', unsafe_allow_html=True)
+if diff_var <= 0:
+    saved = abs(diff_var)
+    st.markdown(
+        f'<span class="good">Great control! You saved ₹{saved} this month (~₹{saved*12}/year)</span>',
+        unsafe_allow_html=True
+    )
 else:
-    st.markdown(f'<span class="good">Variable → Saved ₹{abs(diff_var)}</span>', unsafe_allow_html=True)
+    st.markdown(
+        f'<span class="bad">Overspent ₹{diff_var} — focus on reducing leaks</span>',
+        unsafe_allow_html=True
+    )
 
 var_data = {
     "Groceries": groceries,
@@ -136,11 +145,17 @@ investment_ref = 60000
 
 if investment_total > investment_ref:
     extra = investment_total - investment_ref
-    st.markdown(f'<span class="good">Excellent! Extra ₹{extra} invested 🚀</span>', unsafe_allow_html=True)
+    st.markdown(
+        f'<span class="good">Excellent! ₹{extra} extra invested — strong wealth growth 🚀</span>',
+        unsafe_allow_html=True
+    )
 elif investment_total < investment_ref:
-    st.markdown(f'<span class="warn">Invest ₹{investment_ref-investment_total} more</span>', unsafe_allow_html=True)
+    st.markdown(
+        f'<span class="warn">Invest ₹{investment_ref-investment_total} more</span>',
+        unsafe_allow_html=True
+    )
 else:
-    st.markdown(f'<span class="good">Perfect investment</span>', unsafe_allow_html=True)
+    st.markdown('<span class="good">Perfect investment discipline</span>', unsafe_allow_html=True)
 
 # -----------------------------
 # TOTAL
@@ -173,17 +188,27 @@ if data:
     st.pyplot(fig)
 
     # -----------------------------
-    # AI INSIGHTS (VISIBLE)
+    # AI INSIGHTS (ADVANCED)
     # -----------------------------
     st.subheader("🤖 Smart Insights")
 
     latest = df.iloc[-1]
     prev = df.iloc[-2] if len(df)>1 else None
 
+    # 1. TREND
     if prev is not None:
         diff = latest["grand_total"] - prev["grand_total"]
-        st.write("📈 Increased" if diff>0 else "📉 Saved", f"₹{abs(int(diff))}")
+        st.write("📈 Spending increased" if diff>0 else "📉 You improved savings", f"₹{abs(int(diff))}")
 
+    # 2. RATIO ANALYSIS
+    total = latest["grand_total"]
+    st.write(
+        f"📊 Allocation → Fixed: {latest['fixed_total']/total*100:.1f}% | "
+        f"Variable: {latest['variable_total']/total*100:.1f}% | "
+        f"Investment: {latest['investment_total']/total*100:.1f}%"
+    )
+
+    # 3. CATEGORY ANALYSIS
     budget = {
         "Groceries":9000,
         "Electricity":2000,
@@ -192,7 +217,6 @@ if data:
     }
 
     overspend = {}
-
     for k,v in budget.items():
         col = k.lower().replace(" ","_")
         if latest[col] > v:
@@ -200,9 +224,30 @@ if data:
 
     if overspend:
         worst = max(overspend, key=overspend.get)
-        total = sum(overspend.values())
+        total_waste = sum(overspend.values())
 
-        st.write(f"🚨 Biggest issue: {worst}")
-        st.write(f"💸 Save ₹{total}/month (~₹{total*12}/year)")
+        st.write(f"🚨 Biggest leak: {worst}")
+        st.write(f"💸 Potential saving: ₹{total_waste}/month (~₹{total_waste*12}/year)")
 
-    st.write("💡 Tip: Reduce outside food & track misc expenses")
+    # 4. LIFESTYLE SIGNALS
+    if latest["outside_food"] > 5000:
+        st.write("🍔 High eating-out trend impacting budget")
+    if latest["miscellaneous"] > 7000:
+        st.write("📦 Misc spending needs tracking")
+
+    # 5. INVESTMENT HEALTH
+    if latest["investment_total"] >= 60000:
+        st.write("🚀 Strong investment discipline")
+    else:
+        st.write("⚠️ Investment below optimal level")
+
+    # 6. PREDICTION
+    if prev is not None:
+        trend = latest["grand_total"] - prev["grand_total"]
+        st.write(f"🔮 Next month projection: ₹{int(latest['grand_total'] + trend)}")
+
+    # 7. ACTION PLAN
+    st.markdown("### 🎯 Action Plan")
+    if overspend:
+        for k,v in overspend.items():
+            st.write(f"Reduce {k} by ₹{int(v)}")
