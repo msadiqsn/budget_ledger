@@ -257,114 +257,83 @@ if data:
     st.write(status)
 
 
-# -----------------------------
-    # 🎯 WEALTH PROJECTION (ADVANCED)
-    # -----------------------------
-    st.subheader("🎯 Wealth Projection")
+# === ADVANCED WEALTH TABLE (WITH HISTORY) ===
+    # === USES DB DATA + FUTURE PROJECTION ===
+    st.subheader("📊 Wealth Accumulation (12 Years)")
 
-    st.caption("Assuming 12% annual return")
+    r = 12/100/12
 
-    monthly_sip = sip
-    r = 12/100/12  # monthly rate
+    df_sorted = df.sort_values("created_at")
 
-    # -----------------------------
-    # NORMAL SIP
-    # -----------------------------
-    def fv_sip(p, months):
-        return p * (((1+r)**months - 1)/r)
+    # Approx SIP history (since bissi exists)
+    df_sorted["sip_est"] = df_sorted["investment_total"] - 10000  # assuming bissi = 10k
 
-    # -----------------------------
-    # STEP-UP SIP
-    # -----------------------------
-# === FIX STEP-UP LOGIC ===
-    # === CORRECT MONTHLY COMPOUNDING ORDER ===
-    def fv_step_up(p, years, step):
+    total_months_done = len(df_sorted)
+
+    def simulate(step):
         total = 0
-        monthly = p
+        monthly = sip
 
-        for y in range(years):
+        results = []
+
+        for year in range(1, 13):
             for m in range(12):
-                total = total * (1 + r) + monthly
+                month_index = (year - 1) * 12 + m
+
+                if month_index < total_months_done:
+                    # Use historical SIP
+                    invest = df_sorted.iloc[month_index]["sip_est"]
+                else:
+                    invest = monthly
+
+                total = total * (1 + r) + invest
+
+            results.append(total)
             monthly *= (1 + step)
 
-        return total
+        return results
 
-    durations = [5, 7, 10]
-    steps = [0.05, 0.10, 0.15]
-
-    results = {}
-
-    for yrs in durations:
-        months = yrs * 12
-
-        flat = fv_sip(monthly_sip, months)
-        step_vals = [fv_step_up(monthly_sip, yrs, s) for s in steps]
-
-        st.markdown(f"**{yrs} Years:**")
-        st.write(f"• Flat SIP → ₹{format_inr(flat)}")
-        st.write(f"• Step-up 5% → ₹{format_inr(step_vals[0])}")
-        st.write(f"• Step-up 10% → ₹{format_inr(step_vals[1])} 🚀")
-        st.write(f"• Step-up 15% → ₹{format_inr(step_vals[2])}")
-
-# === SIP GROWTH DISPLAY START ===
-        # === YEAR-WISE SIP FOR ALL STEP-UPS ===
-        st.caption("Monthly SIP Growth:")
-
-        steps_display = [(0.05, "5%"), (0.10, "10%"), (0.15, "15%")]
-
-        for step_val, label in steps_display:
-            st.caption(f"Step-up {label}:")
-
-            sip_progress = monthly_sip
-            for y in range(1, yrs + 1):
-                st.caption(f"Year {y} → ₹{format_inr(sip_progress)}")
-                sip_progress *= (1 + step_val)
-
-            st.caption("")
-
-        st.write("")
-
-        results[yrs] = flat
-
-    # -----------------------------
-    # REQUIRED SIP TABLE
-    # -----------------------------
-    st.markdown("### 📊 Required SIP for Same Growth (10 Years Target)")
-
-    target = fv_sip(monthly_sip, 10*12)
-
-    def required_sip(target, step):
-        sip_guess = 1000
-
-        while True:
-            val = fv_step_up(sip_guess, 10, step)
-            if val >= target:
-                return sip_guess
-            sip_guess += 500
-
-    req_5 = required_sip(target, 0.05)
-    req_10 = required_sip(target, 0.10)
-    req_15 = required_sip(target, 0.15)
+    flat = simulate(0)
+    s5 = simulate(0.05)
+    s10 = simulate(0.10)
+    s15 = simulate(0.15)
 
     table = pd.DataFrame({
-        "Step-up": ["5%", "10%", "15%"],
-        "Required SIP": [
-            f"₹{format_inr(req_5)}",
-            f"₹{format_inr(req_10)}",
-            f"₹{format_inr(req_15)}"
-        ]
+        "Year": list(range(1, 13)),
+        "Flat SIP": [f"₹{format_inr(x)}" for x in flat],
+        "5% Step-up": [f"₹{format_inr(x)}" for x in s5],
+        "10% Step-up": [f"₹{format_inr(x)}" for x in s10],
+        "15% Step-up": [f"₹{format_inr(x)}" for x in s15],
     })
 
     st.table(table)
 
-# === SHOW REQUIRED SIP PROGRESSION ===
-    # === HELPS UNDERSTAND STEP-UP IMPACT ===
-    st.caption("Example progression (10% step-up):")
 
-    sip_progress = req_10
-    for y in range(1, 6):
-        st.caption(f"Year {y} → ₹{format_inr(sip_progress)}")
-        sip_progress *= 1.10
+# === SIP GROWTH TABLE ===
+    # === YEAR-WISE STEP-UP AMOUNTS ===
+    st.subheader("📈 SIP Growth (Yearly)")
+
+    sip_base = sip
+
+    rows = []
+
+    s5_val = sip_base
+    s10_val = sip_base
+    s15_val = sip_base
+
+    for year in range(1, 13):
+        rows.append({
+            "Year": year,
+            "5%": f"₹{format_inr(s5_val)}",
+            "10%": f"₹{format_inr(s10_val)}",
+            "15%": f"₹{format_inr(s15_val)}"
+        })
+
+        s5_val *= 1.05
+        s10_val *= 1.10
+        s15_val *= 1.15
+
+    st.table(pd.DataFrame(rows))
 
 
     st.subheader("📈 Trend")
