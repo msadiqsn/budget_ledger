@@ -66,7 +66,12 @@ def save_to_db(month, fixed, variable, investment, total, var_data):
         "groceries": var_data["Groceries"],
         "electricity": var_data["Electricity"],
         "outside_food": var_data["Outside Food"],
-        "miscellaneous": var_data["Miscellaneous"]
+        "miscellaneous": var_data["Miscellaneous"],
+
+        "short_term": short_term,
+        "lumpsum": lumpsum,
+        "withdraw_sip": withdraw_sip,
+        "withdraw_lumpsum": withdraw_lumpsum
     }).execute()
 
 def load_data():
@@ -172,10 +177,20 @@ var_data = {
 # -----------------------------
 st.subheader("📈 Investment")
 
-bissi = row_input("Bissi",10000,"bissi")
+# === SHORT TERM INVESTMENT ===
+# === REPLACES OLD BISSI ===
+short_term = row_input("Short-Term Investment",10000,"short_term")
+
 sip = row_input("SIP",50000,"sip")
 
-investment_total = bissi + sip
+# === LUMPSUM INPUT ===
+# === LONG TERM ONE-TIME INVESTMENT ===
+lumpsum = row_input("Lumpsum Investment",0,"lumpsum")
+
+# === UPDATED INVESTMENT TOTAL ===
+# === INCLUDES SHORT TERM + SIP + LUMPSUM ===
+investment_total = short_term + sip + lumpsum
+
 investment_ref = 60000
 
 if investment_total > investment_ref:
@@ -195,11 +210,46 @@ else:
         unsafe_allow_html=True
     )
 
+# === WITHDRAW SECTION ===
+# === USER SELECTS SOURCE ===
+st.subheader("💸 Withdraw")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    withdraw_type = st.selectbox("Withdraw From", ["SIP", "Lumpsum"])
+
+with col2:
+    withdraw_amount = st.number_input("Amount", min_value=0, step=1000)
+
+if st.button("Withdraw"):
+    if withdraw_type == "SIP":
+        withdraw_sip = withdraw_amount
+    else:
+        withdraw_lumpsum = withdraw_amount
+
+    st.success("Withdrawal recorded")
+
+
+# === RESET SHORT TERM ===
+# === SIMPLE RESET BUTTON ===
+if st.button("Reset Short-Term Investment"):
+    short_term = 0
+    st.success("Short-Term Investment Reset")
+
+
+
 # -----------------------------
 # TOTAL
 # -----------------------------
 grand_total = fixed_total + variable_total + investment_total
 st.metric("💰 Total", f"₹{format_inr(grand_total)}")
+
+
+# === DEFAULT WITHDRAW VALUES ===
+# === ENSURE VARIABLES EXIST ===
+withdraw_sip = 0
+withdraw_lumpsum = 0
 
 # -----------------------------
 # SAVE
@@ -218,6 +268,23 @@ if data:
 
     latest = df.iloc[-1]
     prev = df.iloc[-2] if len(df) > 1 else None
+
+
+
+# === LONG TERM SUMMARY ===
+# === TOTAL SIP & LUMPSUM ===
+    total_sip = df["sip"].sum() - df["withdraw_sip"].sum()
+    total_lumpsum = df["lumpsum"].sum() - df["withdraw_lumpsum"].sum()
+
+    st.subheader("📊 Long-Term Summary")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.metric("Total SIP", f"₹{format_inr(total_sip)}")
+
+with col2:
+    st.metric("Total Lumpsum", f"₹{format_inr(total_lumpsum)}")
 
     # -----------------------------
     # 📊 FINANCIAL SCORE
