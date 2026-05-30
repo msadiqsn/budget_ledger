@@ -167,6 +167,12 @@ if page == "Daily Entry":
 
     st.header("➕ Daily Expense Entry")
 
+    # === EXPENSE DATE ===
+    # === USER SELECTS DATE ===
+    expense_date = st.date_input(
+        "Expense Date"
+    )
+
     amount = st.number_input(
         "Amount",
         min_value=0,
