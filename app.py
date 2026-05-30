@@ -116,6 +116,46 @@ with col2:
 
 month = f"{selected_month} {selected_year}"
 
+# === DAILY ENTRY PAGE ===
+# === SIMPLE EXPENSE LOGGER ===
+if page == "Daily Entry":
+
+    st.header("➕ Daily Expense Entry")
+
+    amount = st.number_input(
+        "Amount",
+        min_value=0,
+        step=10
+    )
+
+    category = st.selectbox(
+        "Category",
+        [
+            "Groceries",
+            "Outside Food",
+            "Miscellaneous",
+            "Medical",
+            "Transport"
+        ]
+    )
+
+    notes = st.text_input("Notes")
+
+    if st.button("Save Expense"):
+
+        from datetime import date
+
+        supabase.table("expense_log").insert({
+            "expense_date": date.today().isoformat(),
+            "category": category,
+            "amount": amount,
+            "notes": notes
+        }).execute()
+
+        st.success("Expense Saved")
+
+    st.stop()
+
 # -----------------------------
 # FIXED
 # -----------------------------
