@@ -337,8 +337,8 @@ if data:
     with col1:
         st.metric("Total SIP", f"₹{format_inr(total_sip)}")
 
-with col2:
-    st.metric("Total Lumpsum", f"₹{format_inr(total_lumpsum)}")
+    with col2:
+        st.metric("Total Lumpsum", f"₹{format_inr(total_lumpsum)}")
 
     # -----------------------------
     # 📊 FINANCIAL SCORE
