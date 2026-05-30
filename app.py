@@ -317,10 +317,18 @@ if data:
 
 
 
-# === LONG TERM SUMMARY ===
-# === TOTAL SIP & LUMPSUM ===
-    total_sip = df["sip"].sum() - df["withdraw_sip"].sum()
-    total_lumpsum = df["lumpsum"].sum() - df["withdraw_lumpsum"].sum()
+    # === FIX LONG TERM SUMMARY ===
+    # === CALCULATE SIP FROM INVESTMENT TOTAL ===
+    total_sip = (
+        df["investment_total"]
+        - df["short_term"]
+        - df["lumpsum"]
+    ).sum() - df["withdraw_sip"].sum()
+
+    total_lumpsum = (
+        df["lumpsum"].sum()
+        - df["withdraw_lumpsum"].sum()
+    )
 
     st.subheader("📊 Long-Term Summary")
 
