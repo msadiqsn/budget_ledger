@@ -214,7 +214,7 @@ if page == "Daily Entry":
 
     if not expense_df.empty:
 
-        current_month = datetime.today().strftime("%Y-%m")
+        current_month = expense_date.strftime("%Y-%m")
 
         expense_df = expense_df[
             expense_df["expense_date"]
