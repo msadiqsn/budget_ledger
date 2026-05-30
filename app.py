@@ -293,7 +293,7 @@ variable_total = (
     + wifi
 )
 
-variable_ref = 23000
+variable_ref = 26000
 
 diff_var = variable_total - variable_ref
 
