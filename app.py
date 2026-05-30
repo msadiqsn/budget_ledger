@@ -239,6 +239,14 @@ else:
 # -----------------------------
 st.subheader("📊 Variable")
 
+# === VARIABLE BUDGET TARGETS ===
+# === MONTHLY LIMITS ===
+grocery_budget = 9000
+food_budget = 5000
+misc_budget = 7000
+medical_budget = 3000
+transport_budget = 1000
+
 # === AUTO VARIABLE CATEGORIES ===
 # === FROM DAILY EXPENSE LOG ===
 
