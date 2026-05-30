@@ -374,6 +374,30 @@ if not expense_df.empty:
         expense_df["expense_date"].astype(str).str.startswith(filter_prefix)
     ]
 
+
+# === LOAD DAILY EXPENSES ===
+# === ALWAYS CREATE DATAFRAME ===
+expense_data = supabase.table("expense_log").select("*").execute().data
+
+expense_df = pd.DataFrame(expense_data)
+
+if expense_df.empty:
+    expense_df = pd.DataFrame(
+        columns=["expense_date", "category", "amount"]
+    )
+else:
+    selected_month_num = month_map[selected_month]
+
+    filter_prefix = f"{selected_year}-{selected_month_num}"
+
+    expense_df = expense_df[
+        expense_df["expense_date"]
+        .astype(str)
+        .str.startswith(filter_prefix)
+    ]
+
+
+
 # -----------------------------
 # DATA + AI INSIGHTS
 # -----------------------------
