@@ -330,6 +330,22 @@ if st.button("💾 Save"):
     save_to_db(month, fixed_total, variable_total, investment_total, grand_total, var_data)
     st.success("Saved")
 
+# === LOAD DAILY EXPENSES ===
+# === FILTER BY SELECTED MONTH ===
+expense_data = supabase.table("expense_log").select("*").execute().data
+
+expense_df = pd.DataFrame(expense_data)
+
+if not expense_df.empty:
+
+    selected_month_num = month_map[selected_month]
+
+    filter_prefix = f"{selected_year}-{selected_month_num}"
+
+    expense_df = expense_df[
+        expense_df["expense_date"].astype(str).str.startswith(filter_prefix)
+    ]
+
 # -----------------------------
 # DATA + AI INSIGHTS
 # -----------------------------
