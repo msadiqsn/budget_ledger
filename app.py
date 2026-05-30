@@ -205,48 +205,48 @@ if page == "Daily Entry":
 
         st.success("Expense Saved")
 
-# === DAILY BUDGET STATUS ===
-# === QUICK REFERENCE ===
+    # === DAILY BUDGET STATUS ===
+    # === QUICK REFERENCE ===
 
-expense_data = supabase.table("expense_log").select("*").execute().data
+    expense_data = supabase.table("expense_log").select("*").execute().data
 
-expense_df = pd.DataFrame(expense_data)
+    expense_df = pd.DataFrame(expense_data)
 
-if not expense_df.empty:
+    if not expense_df.empty:
 
-    current_month = datetime.today().strftime("%Y-%m")
+        current_month = datetime.today().strftime("%Y-%m")
 
-    expense_df = expense_df[
-        expense_df["expense_date"]
-        .astype(str)
-        .str.startswith(current_month)
-    ]
+        expense_df = expense_df[
+            expense_df["expense_date"]
+            .astype(str)
+            .str.startswith(current_month)
+        ]
 
-    grocery_total = expense_df[
-        expense_df["category"] == "Groceries"
-    ]["amount"].sum()
+        grocery_total = expense_df[
+            expense_df["category"] == "Groceries"
+        ]["amount"].sum()
 
-    food_total = expense_df[
-        expense_df["category"] == "Outside Food"
-    ]["amount"].sum()
+        food_total = expense_df[
+            expense_df["category"] == "Outside Food"
+        ]["amount"].sum()
 
-    misc_total = expense_df[
-        expense_df["category"] == "Miscellaneous"
-    ]["amount"].sum()
+        misc_total = expense_df[
+            expense_df["category"] == "Miscellaneous"
+        ]["amount"].sum()
 
-    st.subheader("🎯 Budget Remaining")
+        st.subheader("🎯 Budget Remaining")
 
-    st.write(
-        f"🛒 Groceries: ₹{format_inr(9000 - grocery_total)} left"
-    )
+        st.write(
+            f"🛒 Groceries: ₹{format_inr(9000 - grocery_total)} left"
+        )
 
-    st.write(
-        f"🍔 Food: ₹{format_inr(5000 - food_total)} left"
-    )
+        st.write(
+            f"🍔 Food: ₹{format_inr(5000 - food_total)} left"
+        )
 
-    st.write(
-        f"💸 Misc: ₹{format_inr(7000 - misc_total)} left"
-    )
+        st.write(
+            f"💸 Misc: ₹{format_inr(7000 - misc_total)} left"
+        )
 
     st.stop()
 
