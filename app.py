@@ -263,6 +263,11 @@ else:
         unsafe_allow_html=True
     )
 
+# === DEFAULT WITHDRAW VALUES ===
+# === ENSURE VARIABLES EXIST ===
+withdraw_sip = 0
+withdraw_lumpsum = 0
+
 # === WITHDRAW SECTION ===
 # === USER SELECTS SOURCE ===
 st.subheader("💸 Withdraw")
@@ -299,10 +304,7 @@ grand_total = fixed_total + variable_total + investment_total
 st.metric("💰 Total", f"₹{format_inr(grand_total)}")
 
 
-# === DEFAULT WITHDRAW VALUES ===
-# === ENSURE VARIABLES EXIST ===
-withdraw_sip = 0
-withdraw_lumpsum = 0
+
 
 # -----------------------------
 # SAVE
