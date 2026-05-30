@@ -396,7 +396,13 @@ if data:
     df_sorted = df.sort_values("created_at")
 
     # Approx SIP history (since bissi exists)
-    df_sorted["sip_est"] = df_sorted["investment_total"] - 10000  # assuming bissi = 10k
+    # === FIX SIP ESTIMATION ===
+# === REMOVE SHORT TERM & LUMPSUM ===
+    df_sorted["sip_est"] = (
+    df_sorted["investment_total"]
+    - df_sorted["short_term"]
+    - df_sorted["lumpsum"]
+)  # assuming bissi = 10k
 
     total_months_done = len(df_sorted)
 
