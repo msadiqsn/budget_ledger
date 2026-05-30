@@ -98,6 +98,12 @@ def row_input(label, ref, key):
 # HEADER
 # -----------------------------
 st.title("💰 Monthly Budget")
+# === PAGE NAVIGATION ===
+# === DASHBOARD OR DAILY ENTRY ===
+page = st.sidebar.radio(
+    "Navigation",
+    ["Dashboard", "Daily Entry"]
+)
 
 months = ["January","February","March","April","May","June","July","August","September","October","November","December"]
 years = list(range(2024, 2035))
