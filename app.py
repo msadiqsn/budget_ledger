@@ -360,16 +360,40 @@ if not expense_df.empty:
         expense_df["category"] == "Miscellaneous"
     ]["amount"].sum()
 
-    c1, c2, c3 = st.columns(3)
+    medical_total = expense_df[
+        expense_df["category"] == "Medical"
+    ]["amount"].sum()
+
+    transport_total = expense_df[
+        expense_df["category"] == "Transport"
+    ]["amount"].sum()
+
+    # === ROW 1 ===
+    # === GROCERIES + FOOD ===
+    c1, c2 = st.columns(2)
 
     with c1:
-        st.metric("Groceries", f"₹{format_inr(grocery_total)}")
+        st.metric("🛒 Groceries", f"₹{format_inr(grocery_total)}")
 
     with c2:
-        st.metric("Food", f"₹{format_inr(food_total)}")
+        st.metric("🍔 Food", f"₹{format_inr(food_total)}")
+
+    # === ROW 2 ===
+    # === MISC + MEDICAL ===
+    c3, c4 = st.columns(2)
 
     with c3:
-        st.metric("Misc", f"₹{format_inr(misc_total)}")
+        st.metric("💸 Misc", f"₹{format_inr(misc_total)}")
+
+    with c4:
+        st.metric("🏥 Medical", f"₹{format_inr(medical_total)}")
+
+    # === ROW 3 ===
+    # === TRANSPORT ===
+    c5, c6 = st.columns(2)
+
+    with c5:
+        st.metric("🚕 Transport", f"₹{format_inr(transport_total)}")
 
 
 # -----------------------------
