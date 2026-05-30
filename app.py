@@ -100,7 +100,14 @@ def row_input(label, ref, key):
 st.title("💰 Monthly Budget")
 # === PAGE NAVIGATION ===
 # === DASHBOARD OR DAILY ENTRY ===
-page = st.sidebar.radio(
+#page = st.sidebar.radio(
+#    "Navigation",
+#    ["Dashboard", "Daily Entry"]
+#)
+
+# === TEST NAVIGATION ===
+# === SHOW IN MAIN PAGE ===
+page = st.radio(
     "Navigation",
     ["Dashboard", "Daily Entry"]
 )
