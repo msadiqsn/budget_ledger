@@ -320,7 +320,35 @@ if st.button("Reset Short-Term Investment"):
 grand_total = fixed_total + variable_total + investment_total
 st.metric("💰 Total", f"₹{format_inr(grand_total)}")
 
+# === DAILY EXPENSE SUMMARY ===
+# === VERIFY MONTHLY TOTALS ===
 
+if not expense_df.empty:
+
+    st.subheader("🧾 Daily Expense Summary")
+
+    grocery_total = expense_df[
+        expense_df["category"] == "Groceries"
+    ]["amount"].sum()
+
+    food_total = expense_df[
+        expense_df["category"] == "Outside Food"
+    ]["amount"].sum()
+
+    misc_total = expense_df[
+        expense_df["category"] == "Miscellaneous"
+    ]["amount"].sum()
+
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        st.metric("Groceries", f"₹{format_inr(grocery_total)}")
+
+    with c2:
+        st.metric("Food", f"₹{format_inr(food_total)}")
+
+    with c3:
+        st.metric("Misc", f"₹{format_inr(misc_total)}")
 
 
 # -----------------------------
