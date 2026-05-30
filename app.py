@@ -112,14 +112,33 @@ page = st.radio(
     ["Dashboard", "Daily Entry"]
 )
 
+# === DEFAULT CURRENT MONTH ===
+# === AUTO SELECT CURRENT YEAR ===
+
 months = ["January","February","March","April","May","June","July","August","September","October","November","December"]
 years = list(range(2024, 2035))
 
+current_month_name = datetime.now().strftime("%B")
+current_year = datetime.now().year
+
+month_index = months.index(current_month_name)
+year_index = years.index(current_year)
+
 col1, col2 = st.columns(2)
+
 with col1:
-    selected_month = st.selectbox("Month", months)
+    selected_month = st.selectbox(
+        "Month",
+        months,
+        index=month_index
+    )
+
 with col2:
-    selected_year = st.selectbox("Year", years)
+    selected_year = st.selectbox(
+        "Year",
+        years,
+        index=year_index
+    )
 
 month = f"{selected_month} {selected_year}"
 
