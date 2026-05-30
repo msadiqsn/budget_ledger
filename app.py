@@ -239,11 +239,49 @@ else:
 # -----------------------------
 st.subheader("📊 Variable")
 
-groceries = row_input("Groceries",9000,"gro")
+# === AUTO VARIABLE CATEGORIES ===
+# === FROM DAILY EXPENSE LOG ===
+
+if expense_df.empty:
+    groceries = 0
+    outside = 0
+    misc = 0
+    medical = 0
+    transport = 0
+else:
+    groceries = expense_df[
+        expense_df["category"] == "Groceries"
+    ]["amount"].sum()
+
+    outside = expense_df[
+        expense_df["category"] == "Outside Food"
+    ]["amount"].sum()
+
+    misc = expense_df[
+        expense_df["category"] == "Miscellaneous"
+    ]["amount"].sum()
+
+    medical = expense_df[
+        expense_df["category"] == "Medical"
+    ]["amount"].sum()
+
+    transport = expense_df[
+        expense_df["category"] == "Transport"
+    ]["amount"].sum()
+
+st.metric("🛒 Groceries", f"₹{format_inr(groceries)}")
+
 electricity = row_input("Electricity",1000,"elec")
+
 wifi = row_input("WiFi",1000,"wifi")
-outside = row_input("Outside Food",5000,"out")
-misc = row_input("Miscellaneous",7000,"misc")
+
+st.metric("🍔 Outside Food", f"₹{format_inr(outside)}")
+
+st.metric("💸 Miscellaneous", f"₹{format_inr(misc)}")
+
+st.metric("🏥 Medical", f"₹{format_inr(medical)}")
+
+st.metric("🚕 Transport", f"₹{format_inr(transport)}")
 
 variable_total = groceries + electricity + wifi + outside + misc
 variable_ref = 23000
