@@ -234,6 +234,14 @@ if page == "Daily Entry":
             expense_df["category"] == "Miscellaneous"
         ]["amount"].sum()
 
+        medical_total = expense_df[
+            expense_df["category"] == "Medical"
+        ]["amount"].sum()
+
+        transport_total = expense_df[
+            expense_df["category"] == "Transport"
+        ]["amount"].sum()
+
         st.subheader("🎯 Budget Remaining")
 
         st.write(
@@ -246,6 +254,14 @@ if page == "Daily Entry":
 
         st.write(
             f"💸 Misc: ₹{format_inr(7000 - misc_total)} left"
+        )
+
+        st.write(
+            f"🏥 Medical: ₹{format_inr(3000 - medical_total)} left"
+        )
+
+        st.write(
+            f"🚕 Transport: ₹{format_inr(1000 - transport_total)} left"
         )
 
     st.stop()
