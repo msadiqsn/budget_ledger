@@ -283,7 +283,16 @@ st.metric("🏥 Medical", f"₹{format_inr(medical)}")
 
 st.metric("🚕 Transport", f"₹{format_inr(transport)}")
 
-variable_total = groceries + electricity + wifi + outside + misc
+variable_total = (
+    groceries
+    + outside
+    + misc
+    + medical
+    + transport
+    + electricity
+    + wifi
+)
+
 variable_ref = 23000
 
 diff_var = variable_total - variable_ref
