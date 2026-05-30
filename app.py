@@ -464,7 +464,8 @@ if data:
 
     df_sorted = df.sort_values("created_at")
 
-    # Approx SIP history (since bissi exists)
+    # === SIP HISTORY ===
+# === REMOVE SHORT TERM & LUMPSUM ===
     # === FIX SIP ESTIMATION ===
 # === REMOVE SHORT TERM & LUMPSUM ===
     df_sorted["sip_est"] = (
