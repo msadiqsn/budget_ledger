@@ -317,6 +317,40 @@ else:
         unsafe_allow_html=True
     )
 
+# === REMAINING BUDGET ===
+# === EASY TRACKING ===
+
+st.subheader("🎯 Budget Remaining")
+
+c1, c2 = st.columns(2)
+
+with c1:
+    st.metric(
+        "🛒 Groceries Left",
+        f"₹{format_inr(grocery_budget - groceries)}"
+    )
+
+    st.metric(
+        "💸 Misc Left",
+        f"₹{format_inr(misc_budget - misc)}"
+    )
+
+    st.metric(
+        "🚕 Transport Left",
+        f"₹{format_inr(transport_budget - transport)}"
+    )
+
+with c2:
+    st.metric(
+        "🍔 Food Left",
+        f"₹{format_inr(food_budget - outside)}"
+    )
+
+    st.metric(
+        "🏥 Medical Left",
+        f"₹{format_inr(medical_budget - medical)}"
+    )
+
 var_data = {
     "Groceries": groceries,
     "Electricity": electricity + wifi,
