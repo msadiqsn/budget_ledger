@@ -277,11 +277,19 @@ else:
         expense_df["category"] == "Transport"
     ]["amount"].sum()
 
-st.metric("🛒 Groceries", f"₹{format_inr(groceries)}")
+# === MANUAL MONTHLY EXPENSES ===
+# === ELECTRICITY + WIFI ===
 
 electricity = row_input("Electricity",1000,"elec")
 
 wifi = row_input("WiFi",1000,"wifi")
+
+st.markdown("---")
+
+# === DAILY EXPENSE TOTALS ===
+# === AUTO FROM EXPENSE LOG ===
+
+st.metric("🛒 Groceries", f"₹{format_inr(groceries)}")
 
 st.metric("🍔 Outside Food", f"₹{format_inr(outside)}")
 
