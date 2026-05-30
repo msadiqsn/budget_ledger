@@ -399,10 +399,10 @@ if data:
     # === FIX SIP ESTIMATION ===
 # === REMOVE SHORT TERM & LUMPSUM ===
     df_sorted["sip_est"] = (
-    df_sorted["investment_total"]
-    - df_sorted["short_term"]
-    - df_sorted["lumpsum"]
-)  # assuming bissi = 10k
+        df_sorted["investment_total"]
+        - df_sorted["short_term"]
+        - df_sorted["lumpsum"]
+    )  # assuming bissi = 10k
 
     total_months_done = len(df_sorted)
 
