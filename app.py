@@ -197,7 +197,7 @@ if page == "Daily Entry":
         from datetime import date
 
         supabase.table("expense_log").insert({
-            "expense_date": date.today().isoformat(),
+            "expense_date": expense_date.isoformat(),
             "category": category,
             "amount": amount,
             "notes": notes
