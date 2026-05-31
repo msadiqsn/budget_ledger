@@ -40,7 +40,7 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 # -----------------------------
 
 FIXED_REF = {
-    "rent": 16000,
+    "rent": 15750,
     "abba": 10000,
     "loan": 10000,
     "ammi": 3000,
