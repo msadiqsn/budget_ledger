@@ -515,7 +515,7 @@ lumpsum = row_input(
 # === INCLUDES SHORT TERM + SIP + LUMPSUM ===
 investment_total = short_term + sip + lumpsum
 
-investment_ref = 60000
+investment_ref = sum(INVESTMENT_REF.values())
 
 if investment_total > investment_ref:
     extra = investment_total - investment_ref
