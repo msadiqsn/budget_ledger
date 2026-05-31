@@ -264,6 +264,47 @@ if page == "Daily Entry":
 
         st.success("Expense Saved")
 
+    # === RECENT TRANSACTIONS ===
+    # === LAST 10 ENTRIES ===
+
+    st.subheader("📜 Recent Transactions")
+
+    recent = (
+        supabase.table("expense_log")
+        .select("*")
+        .order("expense_date", desc=True)
+        .limit(10)
+        .execute()
+    )
+
+    recent_df = pd.DataFrame(recent.data)
+
+    if not recent_df.empty:
+
+        for _, row in recent_df.iterrows():
+
+            col1, col2 = st.columns([5,1])
+
+            with col1:
+                st.write(
+                    f"{row['expense_date']} | "
+                    f"{row['category']} | "
+                    f"₹{format_inr(row['amount'])}"
+                )
+
+            with col2:
+
+                if st.button(
+                    "🗑",
+                    key=f"del_{row['id']}"
+                ):
+
+                    delete_expense(row["id"])
+
+                    st.rerun()
+
+
+
     # === DAILY BUDGET STATUS ===
     # === QUICK REFERENCE ===
 
