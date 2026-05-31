@@ -107,6 +107,16 @@ def save_to_db(month, fixed, variable, investment, total, var_data):
 def load_data():
     return supabase.table("budget").select("*").execute().data
 
+
+# -----------------------------
+# DELETE EXPENSE
+# -----------------------------
+def delete_expense(expense_id):
+    supabase.table("expense_log") \
+        .delete() \
+        .eq("id", expense_id) \
+        .execute()
+
 # -----------------------------
 # ROW INPUT
 # -----------------------------
