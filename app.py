@@ -391,9 +391,17 @@ else:
 # === MANUAL MONTHLY EXPENSES ===
 # === ELECTRICITY + WIFI ===
 
-electricity = row_input("Electricity",1000,"elec")
+electricity = row_input(
+    "Electricity",
+    VARIABLE_REF["electricity"],
+    "elec"
+)
 
-wifi = row_input("WiFi",1000,"wifi")
+wifi = row_input(
+    "WiFi",
+    VARIABLE_REF["wifi"],
+    "wifi"
+)
 
 st.markdown("---")
 
