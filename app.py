@@ -320,11 +320,12 @@ if page == "Daily Entry":
 # -----------------------------
 st.subheader("🏠 Fixed")
 
-rent = row_input("Rent",16000,"rent")
-abba = row_input("Abba",10000,"abba")
-loan = row_input("Loan",10000,"loan")
-ammi = row_input("Ammi",3000,"ammi")
-maid = row_input("Maid",3000,"maid")
+rent = row_input("Rent", FIXED_REF["rent"], "rent")
+abba = row_input("Abba", FIXED_REF["abba"], "abba")
+loan = row_input("Loan", FIXED_REF["loan"], "loan")
+ammi = row_input("Ammi", FIXED_REF["ammi"], "ammi")
+maid = row_input("Maid", FIXED_REF["maid"], "maid")
+
 
 fixed_total = rent + abba + loan + ammi + maid
 fixed_ref = 42000
