@@ -492,13 +492,24 @@ st.subheader("📈 Investment")
 
 # === SHORT TERM INVESTMENT ===
 # === REPLACES OLD BISSI ===
-short_term = row_input("Short-Term Investment",10000,"short_term")
 
-sip = row_input("SIP",50000,"sip")
+short_term = row_input(
+    "Short-Term Investment",
+    INVESTMENT_REF["short_term"],
+    "short_term"
+)
 
-# === LUMPSUM INPUT ===
-# === LONG TERM ONE-TIME INVESTMENT ===
-lumpsum = row_input("Lumpsum Investment",0,"lumpsum")
+sip = row_input(
+    "SIP",
+    INVESTMENT_REF["sip"],
+    "sip"
+)
+
+lumpsum = row_input(
+    "Lumpsum Investment",
+    INVESTMENT_REF["lumpsum"],
+    "lumpsum"
+)
 
 # === UPDATED INVESTMENT TOTAL ===
 # === INCLUDES SHORT TERM + SIP + LUMPSUM ===
