@@ -292,6 +292,7 @@ if page == "Daily Entry":
                     f"₹{format_inr(row['amount'])}"
                 )
 
+
             with col2:
 
                 if st.button(
@@ -299,9 +300,44 @@ if page == "Daily Entry":
                     key=f"del_{row['id']}"
                 ):
 
-                    delete_expense(row["id"])
+                    st.session_state[
+                        f"confirm_delete_{row['id']}"
+                    ] = True
 
-                    st.rerun()
+                if st.session_state.get(
+                    f"confirm_delete_{row['id']}",
+                    False
+                ):
+
+                    st.warning(
+                        "Delete this transaction?"
+                    )
+
+                    c1, c2 = st.columns(2)
+
+                    with c1:
+
+                        if st.button(
+                            "✅ Yes",
+                            key=f"yes_{row['id']}"
+                        ):
+
+                            delete_expense(row["id"])
+
+                            st.rerun()
+
+                    with c2:
+
+                        if st.button(
+                            "❌ No",
+                            key=f"no_{row['id']}"
+                        ):
+
+                            st.session_state[
+                                f"confirm_delete_{row['id']}"
+                            ] = False
+
+                            st.rerun()
 
 
 
