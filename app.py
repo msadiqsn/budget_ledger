@@ -34,6 +34,36 @@ SUPABASE_URL = "https://lmlzlilfoudxdtyvuhbz.supabase.co"
 SUPABASE_KEY = "sb_publishable_uIw4d9MgIgoYfQkbXgIvgg_vYqGabBz"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+
+# -----------------------------
+# MASTER BUDGET CONFIG
+# -----------------------------
+
+FIXED_REF = {
+    "rent": 16000,
+    "abba": 10000,
+    "loan": 10000,
+    "ammi": 3000,
+    "maid": 3000
+}
+
+VARIABLE_REF = {
+    "groceries": 9000,
+    "outside_food": 5000,
+    "miscellaneous": 7000,
+    "medical": 3000,
+    "transport": 1000,
+    "electricity": 1000,
+    "wifi": 1000
+}
+
+INVESTMENT_REF = {
+    "short_term": 10000,
+    "sip": 50000,
+    "lumpsum": 0
+}
+
+
 # -----------------------------
 # STYLE
 # -----------------------------
