@@ -351,11 +351,12 @@ st.subheader("📊 Variable")
 
 # === VARIABLE BUDGET TARGETS ===
 # === MONTHLY LIMITS ===
-grocery_budget = 9000
-food_budget = 5000
-misc_budget = 7000
-medical_budget = 3000
-transport_budget = 1000
+
+grocery_budget = VARIABLE_REF["groceries"]
+food_budget = VARIABLE_REF["outside_food"]
+misc_budget = VARIABLE_REF["miscellaneous"]
+medical_budget = VARIABLE_REF["medical"]
+transport_budget = VARIABLE_REF["transport"]
 
 # === AUTO VARIABLE CATEGORIES ===
 # === FROM DAILY EXPENSE LOG ===
