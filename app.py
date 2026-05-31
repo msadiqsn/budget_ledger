@@ -328,7 +328,8 @@ maid = row_input("Maid", FIXED_REF["maid"], "maid")
 
 
 fixed_total = rent + abba + loan + ammi + maid
-fixed_ref = 42000
+
+fixed_ref = sum(FIXED_REF.values())
 
 diff_fixed = fixed_total - fixed_ref
 
