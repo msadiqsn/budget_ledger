@@ -370,7 +370,12 @@ if page == "Daily Entry":
 
     if not expense_df.empty:
 
-        current_month = expense_date.strftime("%Y-%m")
+        # === USE SELECTED MONTH ===
+        # === SAME AS DASHBOARD ===
+        current_month = (
+            f"{selected_year}-"
+            f"{month_map[selected_month]}"
+        )
 
         expense_df = expense_df[
             expense_df["expense_date"]
