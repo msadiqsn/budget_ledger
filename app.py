@@ -138,18 +138,17 @@ def row_input(label, ref, key):
 # HEADER
 # -----------------------------
 st.title("💰 Monthly Budget")
-# === PAGE NAVIGATION ===
-# === DASHBOARD OR DAILY ENTRY ===
-#page = st.sidebar.radio(
-#    "Navigation",
-#    ["Dashboard", "Daily Entry"]
-#)
 
-# === TEST NAVIGATION ===
-# === SHOW IN MAIN PAGE ===
+
+# === APP NAVIGATION ===
+# === ALL PAGES ===
 page = st.radio(
     "Navigation",
-    ["Dashboard", "Daily Entry"]
+    [
+        "Dashboard",
+        "Daily Entry",
+        "Bills & Commitments"
+    ]
 )
 
 # === DEFAULT CURRENT MONTH ===
