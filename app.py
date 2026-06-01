@@ -388,25 +388,63 @@ if page == "Daily Entry":
 
         st.subheader("🎯 Budget Remaining")
 
-        st.write(
-            f"🛒 Groceries: ₹{format_inr(9000 - grocery_total)} left"
-        )
 
-        st.write(
-            f"🍔 Food: ₹{format_inr(5000 - food_total)} left"
-        )
+        remaining = grocery_budget - grocery_total
 
-        st.write(
-            f"💸 Misc: ₹{format_inr(7000 - misc_total)} left"
-        )
+        if remaining >= 0:
+            st.success(
+                f"🛒 Groceries: ₹{format_inr(remaining)} left"
+            )
+        else:
+            st.error(
+                f"🛒 Groceries: Overspent by ₹{format_inr(abs(remaining))}"
+            )
 
-        st.write(
-            f"🏥 Medical: ₹{format_inr(3000 - medical_total)} left"
-        )
+        remaining = food_budget - food_total
 
-        st.write(
-            f"🚕 Transport: ₹{format_inr(1000 - transport_total)} left"
-        )
+        if remaining >= 0:
+            st.success(
+                f"🍔 Food: ₹{format_inr(remaining)} left"
+            )
+        else:
+            st.error(
+                f"🍔 Food: Overspent by ₹{format_inr(abs(remaining))}"
+            )
+
+        remaining = misc_budget - misc_total
+
+        if remaining >= 0:
+            st.success(
+                f"💸 Misc: ₹{format_inr(remaining)} left"
+            )
+        else:
+            st.error(
+                f"💸 Misc: Overspent by ₹{format_inr(abs(remaining))}"
+            )
+
+        remaining = medical_budget - medical_total
+
+        if remaining >= 0:
+            st.success(
+                f"🏥 Medical: ₹{format_inr(remaining)} left"
+            )
+        else:
+            st.error(
+                f"🏥 Medical: Overspent by ₹{format_inr(abs(remaining))}"
+            )
+
+        remaining = transport_budget - transport_total
+
+        if remaining >= 0:
+            st.success(
+                f"🚕 Transport: ₹{format_inr(remaining)} left"
+            )
+        else:
+            st.error(
+                f"🚕 Transport: Overspent by ₹{format_inr(abs(remaining))}"
+            )
+
+
 
     st.stop()
 
