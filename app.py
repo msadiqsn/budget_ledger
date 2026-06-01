@@ -119,6 +119,27 @@ def delete_bill(bill_id):
         bill_id
     ).execute()
 
+
+# === SAVE BILL PAYMENT ===
+# === INSERT INTO BILL PAYMENTS ===
+def save_bill_payment(
+    bill_name,
+    payment_date,
+    amount,
+    notes
+):
+
+    supabase.table(
+        "bill_payments"
+    ).insert({
+
+        "bill_name": bill_name,
+        "payment_date": payment_date,
+        "amount": amount,
+        "notes": notes
+
+    }).execute()
+
 # -----------------------------
 # DELETE EXPENSE
 # -----------------------------
