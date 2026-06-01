@@ -395,6 +395,7 @@ if page == "Bills & Commitments":
                 [3, 1, 1, 1]
             )
 
+
             with col1:
 
                 st.write(
@@ -404,6 +405,24 @@ if page == "Bills & Commitments":
                 st.write(
                     f"Category: {row['category']}"
                 )
+
+                # === LAST PAYMENT ===
+                # === MOST RECENT PAYMENT ===
+                last_payment = get_last_payment(
+                    row["name"]
+                )
+
+                if last_payment:
+
+                    st.caption(
+                        f"Last Paid: "
+                        f"₹{format_inr(last_payment['amount'])}"
+                    )
+
+                    st.caption(
+                        f"On: "
+                        f"{last_payment['payment_date']}"
+                    )
 
             with col2:
 
