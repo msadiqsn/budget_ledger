@@ -241,6 +241,65 @@ if page == "Bills & Commitments":
 
     st.subheader("➕ Add New Bill")
 
+# === ADD BILL FORM ===
+    # === CREATE PAYMENT SCHEDULE ===
+
+    bill_name = st.text_input(
+        "Bill Name"
+    )
+
+    bill_category = st.selectbox(
+        "Category",
+        [
+            "Fixed",
+            "Utility",
+            "Investment",
+            "Other"
+        ]
+    )
+
+    bill_due_day = st.number_input(
+        "Due Day",
+        min_value=1,
+        max_value=31,
+        value=1
+    )
+
+    bill_amount = st.number_input(
+        "Expected Amount",
+        min_value=0,
+        step=100
+    )
+
+    if st.button("Save Bill"):
+
+        if bill_name.strip() == "":
+
+            st.error(
+                "Bill name required"
+            )
+
+        else:
+
+            supabase.table(
+                "payment_schedule"
+            ).insert({
+
+                "name": bill_name,
+                "category": bill_category,
+                "due_day": bill_due_day,
+                "expected_amount": bill_amount
+
+            }).execute()
+
+            st.success(
+                "Bill saved successfully"
+            )
+
+            st.rerun()
+
+    st.markdown("---")
+
     schedule_data = (
         supabase
         .table("payment_schedule")
