@@ -434,6 +434,109 @@ if page == "Bills & Commitments":
                     f"₹{format_inr(row['expected_amount'])}"
                 )
 
+                # === CURRENT MONTH PAYMENTS ===
+                current_month = (
+                    datetime.today()
+                    .strftime("%Y-%m")
+                )
+
+                payment_data = (
+                    supabase
+                    .table("bill_payments")
+                    .select("*")
+                    .eq("bill_name", row["name"])
+                    .execute()
+                    .data
+                )
+
+                payment_df = pd.DataFrame(
+                    payment_data
+                )
+
+                paid_amount = 0
+
+                if not payment_df.empty:
+
+                    payment_df = payment_df[
+                        payment_df["payment_date"]
+                        .astype(str)
+                        .str.startswith(
+                            current_month
+                        )
+                    ]
+
+                    paid_amount = (
+                        payment_df["amount"]
+                        .sum()
+                    )
+
+                expected_amount = (
+                    row["expected_amount"]
+                )
+
+                today_day = (
+                    datetime.today().day
+                )
+
+                # === STATUS ===
+
+                if paid_amount >= expected_amount:
+
+                    st.success(
+                        f"✅ Paid "
+                        f"(₹{format_inr(paid_amount)})"
+                    )
+
+                elif paid_amount > 0:
+
+                    remaining = (
+                        expected_amount
+                        - paid_amount
+                    )
+
+                    st.warning(
+                        f"🟡 Partial "
+                        f"(₹{format_inr(paid_amount)} / "
+                        f"₹{format_inr(expected_amount)})"
+                    )
+
+                    st.caption(
+                        f"Remaining: "
+                        f"₹{format_inr(remaining)}"
+                    )
+
+                else:
+
+                    if today_day > row["due_day"]:
+
+                        overdue = (
+                            today_day
+                            - row["due_day"]
+                        )
+
+                        st.error(
+                            f"🔴 Overdue "
+                            f"({overdue} days)"
+                        )
+
+                    elif today_day == row["due_day"]:
+
+                        st.warning(
+                            "🟡 Due Today"
+                        )
+
+                    else:
+
+                        due_in = (
+                            row["due_day"]
+                            - today_day
+                        )
+
+                        st.info(
+                            f"🟡 Due in "
+                            f"{due_in} days"
+                        )
+
 
             with col3:
 
