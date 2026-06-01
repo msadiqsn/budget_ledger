@@ -784,6 +784,8 @@ if st.button("Reset Short-Term Investment"):
 # -----------------------------
 grand_total = fixed_total + variable_total + investment_total
 st.metric("💰 Total", f"₹{format_inr(grand_total)}")
+ 
+
 
 # === DAILY EXPENSE SUMMARY ===
 # === VERIFY MONTHLY TOTALS ===
@@ -812,32 +814,129 @@ if not expense_df.empty:
         expense_df["category"] == "Transport"
     ]["amount"].sum()
 
-    # === ROW 1 ===
-    # === GROCERIES + FOOD ===
+    # =========================
+    # MONTHLY SUMMARY
+    # =========================
+
+    monthly_expense = (
+        grocery_total
+        + food_total
+        + misc_total
+        + medical_total
+        + transport_total
+    )
+
+    category_totals = {
+        "Groceries": grocery_total,
+        "Food": food_total,
+        "Misc": misc_total,
+        "Medical": medical_total,
+        "Transport": transport_total
+    }
+
+    highest_category = max(
+        category_totals,
+        key=category_totals.get
+    )
+
+    highest_amount = category_totals[
+        highest_category
+    ]
+
+    st.subheader("📊 Monthly Expense Summary")
+
     c1, c2 = st.columns(2)
 
     with c1:
-        st.metric("🛒 Groceries", f"₹{format_inr(grocery_total)}")
+
+        st.metric(
+            "Total Expenses",
+            f"₹{format_inr(monthly_expense)}"
+        )
 
     with c2:
-        st.metric("🍔 Food", f"₹{format_inr(food_total)}")
 
-    # === ROW 2 ===
-    # === MISC + MEDICAL ===
-    c3, c4 = st.columns(2)
+        st.metric(
+            "Highest Category",
+            f"{highest_category}"
+        )
 
-    with c3:
-        st.metric("💸 Misc", f"₹{format_inr(misc_total)}")
+    st.info(
+        f"🏆 Highest spending category: "
+        f"{highest_category} "
+        f"(₹{format_inr(highest_amount)})"
+    )
 
-    with c4:
-        st.metric("🏥 Medical", f"₹{format_inr(medical_total)}")
+    # =========================
+    # BUDGET EFFICIENCY
+    # =========================
 
-    # === ROW 3 ===
-    # === TRANSPORT ===
-    c5, c6 = st.columns(2)
+    budget_used = variable_total
 
-    with c5:
-        st.metric("🚕 Transport", f"₹{format_inr(transport_total)}")
+    if variable_ref > 0:
+
+        variance_percent = (
+            abs(variable_ref - budget_used)
+            / variable_ref
+        ) * 100
+
+        if budget_used < variable_ref:
+
+            st.success(
+                f"💰 Budget Efficiency: "
+                f"{variance_percent:.1f}% Saved"
+            )
+
+        elif budget_used == variable_ref:
+
+            st.info(
+                "💰 Budget Efficiency: On Budget"
+            )
+
+        else:
+
+            st.error(
+                f"🚨 Budget Overrun: "
+                f"{variance_percent:.1f}% Overspent"
+            )
+
+    # =========================
+    # CATEGORY BREAKDOWN
+    # =========================
+
+    st.subheader("📂 Category Breakdown")
+
+    c1, c2 = st.columns(2)
+
+    with c1:
+
+        st.metric(
+            "🛒 Groceries",
+            f"₹{format_inr(grocery_total)}"
+        )
+
+        st.metric(
+            "💸 Misc",
+            f"₹{format_inr(misc_total)}"
+        )
+
+        st.metric(
+            "🚕 Transport",
+            f"₹{format_inr(transport_total)}"
+        )
+
+    with c2:
+
+        st.metric(
+            "🍔 Food",
+            f"₹{format_inr(food_total)}"
+        )
+
+        st.metric(
+            "🏥 Medical",
+            f"₹{format_inr(medical_total)}"
+        )
+
 
 
 # -----------------------------
