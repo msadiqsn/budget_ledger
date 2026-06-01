@@ -285,11 +285,19 @@ if page == "Daily Entry":
 
             col1, col2 = st.columns([5,1])
 
+
             with col1:
+
+                note_text = ""
+
+                if row.get("notes"):
+                    note_text = f" | 📝 {row['notes']}"
+
                 st.write(
                     f"{row['expense_date']} | "
                     f"{row['category']} | "
                     f"₹{format_inr(row['amount'])}"
+                    f"{note_text}"
                 )
 
 
