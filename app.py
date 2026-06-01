@@ -593,6 +593,8 @@ else:
         f'<span class="bad">Overspending ₹{format_inr(diff_var)} — lifestyle leak detected</span>',
         unsafe_allow_html=True
     )
+   
+
 
 # === REMAINING BUDGET ===
 # === EASY TRACKING ===
@@ -602,31 +604,90 @@ st.subheader("🎯 Budget Remaining")
 c1, c2 = st.columns(2)
 
 with c1:
-    st.metric(
-        "🛒 Groceries Left",
-        f"₹{format_inr(grocery_budget - groceries)}"
+
+    grocery_remaining = (
+        grocery_budget - groceries
     )
 
-    st.metric(
-        "💸 Misc Left",
-        f"₹{format_inr(misc_budget - misc)}"
+    if grocery_remaining >= 0:
+
+        st.success(
+            f"🛒 Groceries: ₹{format_inr(grocery_remaining)} left"
+        )
+
+    else:
+
+        st.error(
+            f"🛒 Groceries Overspent by ₹{format_inr(abs(grocery_remaining))}"
+        )
+
+    misc_remaining = (
+        misc_budget - misc
     )
 
-    st.metric(
-        "🚕 Transport Left",
-        f"₹{format_inr(transport_budget - transport)}"
+    if misc_remaining >= 0:
+
+        st.success(
+            f"💸 Misc: ₹{format_inr(misc_remaining)} left"
+        )
+
+    else:
+
+        st.error(
+            f"💸 Misc Overspent by ₹{format_inr(abs(misc_remaining))}"
+        )
+
+    transport_remaining = (
+        transport_budget - transport
     )
+
+    if transport_remaining >= 0:
+
+        st.success(
+            f"🚕 Transport: ₹{format_inr(transport_remaining)} left"
+        )
+
+    else:
+
+        st.error(
+            f"🚕 Transport Overspent by ₹{format_inr(abs(transport_remaining))}"
+        )
 
 with c2:
-    st.metric(
-        "🍔 Food Left",
-        f"₹{format_inr(food_budget - outside)}"
+
+    food_remaining = (
+        food_budget - outside
     )
 
-    st.metric(
-        "🏥 Medical Left",
-        f"₹{format_inr(medical_budget - medical)}"
+    if food_remaining >= 0:
+
+        st.success(
+            f"🍔 Food: ₹{format_inr(food_remaining)} left"
+        )
+
+    else:
+
+        st.error(
+            f"🍔 Food Overspent by ₹{format_inr(abs(food_remaining))}"
+        )
+
+    medical_remaining = (
+        medical_budget - medical
     )
+
+    if medical_remaining >= 0:
+
+        st.success(
+            f"🏥 Medical: ₹{format_inr(medical_remaining)} left"
+        )
+
+    else:
+
+        st.error(
+            f"🏥 Medical Overspent by ₹{format_inr(abs(medical_remaining))}"
+        )
+
+
 
 var_data = {
     "Groceries": groceries,
