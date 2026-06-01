@@ -336,7 +336,9 @@ if page == "Bills & Commitments":
 
             st.markdown("---")
 
-            col1, col2 = st.columns([3, 1])
+            col1, col2, col3 = st.columns(
+                [3, 1, 1]
+            )
 
             with col1:
 
@@ -357,6 +359,70 @@ if page == "Bills & Commitments":
                 st.write(
                     f"₹{format_inr(row['expected_amount'])}"
                 )
+
+            with col3:
+
+                delete_key = (
+                    f"delete_bill_"
+                    f"{row['id']}"
+                )
+
+                confirm_key = (
+                    f"confirm_bill_"
+                    f"{row['id']}"
+                )
+
+                if st.button(
+                    "🗑",
+                    key=delete_key
+                ):
+
+                    st.session_state[
+                        confirm_key
+                    ] = True
+
+                if st.session_state.get(
+                    confirm_key,
+                    False
+                ):
+
+                    st.warning(
+                        "Delete this bill?"
+                    )
+
+                    c1, c2 = st.columns(2)
+
+                    with c1:
+
+                        if st.button(
+                            "✅ Yes",
+                            key=f"yes_{row['id']}"
+                        ):
+
+                            delete_bill(
+                                row["id"]
+                            )
+
+                            st.success(
+                                "Bill deleted"
+                            )
+
+                            st.rerun()
+
+                    with c2:
+
+                        if st.button(
+                            "❌ No",
+                            key=f"no_{row['id']}"
+                        ):
+
+                            st.session_state[
+                                confirm_key
+                            ] = False
+
+                            st.rerun()
+
+
 
     st.stop()
 
