@@ -383,7 +383,73 @@ if page == "Bills & Commitments":
                     f"₹{format_inr(row['expected_amount'])}"
                 )
 
+
             with col3:
+
+                pay_key = (
+                    f"pay_bill_"
+                    f"{row['id']}"
+                )
+
+                if st.button(
+                    "💰 Pay",
+                    key=pay_key
+                ):
+
+                    st.session_state[
+                        pay_key
+                    ] = True
+
+                if st.session_state.get(
+                    pay_key,
+                    False
+                ):
+
+                    st.markdown(
+                        "### Record Payment"
+                    )
+
+                    payment_amount = st.number_input(
+                        "Amount",
+                        min_value=0,
+                        value=int(
+                            row[
+                                "expected_amount"
+                            ]
+                        ),
+                        key=f"amt_{row['id']}"
+                    )
+
+                    payment_notes = st.text_input(
+                        "Notes",
+                        key=f"notes_{row['id']}"
+                    )
+
+                    if st.button(
+                        "Save Payment",
+                        key=f"save_{row['id']}"
+                    ):
+
+                        save_bill_payment(
+                            row["name"],
+                            datetime.today()
+                            .date()
+                            .isoformat(),
+                            payment_amount,
+                            payment_notes
+                        )
+
+                        st.success(
+                            "Payment saved"
+                        )
+
+                        st.session_state[
+                            pay_key
+                        ] = False
+
+                        st.rerun()
+
+            with col4:
 
                 delete_key = (
                     f"delete_bill_"
