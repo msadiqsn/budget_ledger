@@ -918,10 +918,13 @@ if data:
             summary.append(f"You improved savings by ₹{format_inr(abs(diff))}")
 
     budget = {
-        "Groceries":9000,
-        "Electricity":2000,
-        "Outside Food":5000,
-        "Miscellaneous":7000
+        "Groceries": grocery_budget,
+        "Electricity": (
+            VARIABLE_REF["electricity"]
+            + VARIABLE_REF["wifi"]
+        ),
+        "Outside Food": food_budget,
+        "Miscellaneous": misc_budget
     }
 
     overspend = {}
