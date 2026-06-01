@@ -239,6 +239,8 @@ if page == "Bills & Commitments":
 
     st.header("📅 Bills & Commitments")
 
+    st.subheader("➕ Add New Bill")
+
     schedule_data = (
         supabase
         .table("payment_schedule")
