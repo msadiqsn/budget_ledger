@@ -231,6 +231,65 @@ else:
         .str.startswith(filter_prefix)
     ]
 
+
+
+# === BILLS PAGE ===
+# === PAYMENT SCHEDULE ===
+if page == "Bills & Commitments":
+
+    st.header("📅 Bills & Commitments")
+
+    schedule_data = (
+        supabase
+        .table("payment_schedule")
+        .select("*")
+        .order("due_day")
+        .execute()
+        .data
+    )
+
+    schedule_df = pd.DataFrame(
+        schedule_data
+    )
+
+    if schedule_df.empty:
+
+        st.warning(
+            "No bills configured"
+        )
+
+    else:
+
+        for _, row in schedule_df.iterrows():
+
+            st.markdown("---")
+
+            col1, col2 = st.columns([3, 1])
+
+            with col1:
+
+                st.write(
+                    f"**{row['name']}**"
+                )
+
+                st.write(
+                    f"Category: {row['category']}"
+                )
+
+            with col2:
+
+                st.write(
+                    f"Due: {row['due_day']}"
+                )
+
+                st.write(
+                    f"₹{format_inr(row['expected_amount'])}"
+                )
+
+    st.stop()
+
+
+
 # === DAILY ENTRY PAGE ===
 # === SIMPLE EXPENSE LOGGER ===
 if page == "Daily Entry":
