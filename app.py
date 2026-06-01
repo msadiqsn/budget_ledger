@@ -949,7 +949,7 @@ if data:
         for k, v in sorted(overspend.items(), key=lambda x: -x[1]):
             st.write(f"Reduce {k} by ₹{format_inr(v)}")
 
-    if latest["investment_total"] < 60000:
+    if latest["investment_total"] < investment_ref:
         action_given = True
         st.write("Increase SIP to improve long-term wealth")
 
