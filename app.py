@@ -777,7 +777,7 @@ if data:
 
     score = 100
 
-    if latest["variable_total"] > 23000:
+    if latest["variable_total"] > variable_ref:
         score -= 25
     else:
         score += 5
