@@ -140,6 +140,38 @@ def save_bill_payment(
 
     }).execute()
 
+
+
+# === GET LAST PAYMENT ===
+# === MOST RECENT BILL PAYMENT ===
+def get_last_payment(
+    bill_name
+):
+
+    result = (
+        supabase.table(
+            "bill_payments"
+        )
+        .select("*")
+        .eq(
+            "bill_name",
+            bill_name
+        )
+        .order(
+            "payment_date",
+            desc=True
+        )
+        .limit(1)
+        .execute()
+    )
+
+    if result.data:
+
+        return result.data[0]
+
+    return None
+
+
 # -----------------------------
 # DELETE EXPENSE
 # -----------------------------
