@@ -523,7 +523,7 @@ variable_total = (
     + wifi
 )
 
-variable_ref = 26000
+variable_ref = sum(VARIABLE_REF.values())
 
 diff_var = variable_total - variable_ref
 
