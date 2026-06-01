@@ -199,6 +199,18 @@ month_map = {
     "December":"12"
 }
 
+
+# -----------------------------
+# VARIABLE BUDGET TARGETS
+# -----------------------------
+
+grocery_budget = VARIABLE_REF["groceries"]
+food_budget = VARIABLE_REF["outside_food"]
+misc_budget = VARIABLE_REF["miscellaneous"]
+medical_budget = VARIABLE_REF["medical"]
+transport_budget = VARIABLE_REF["transport"]
+
+
 # === LOAD DAILY EXPENSES ===
 # === ALWAYS CREATE DATAFRAME ===
 expense_data = supabase.table("expense_log").select("*").execute().data
