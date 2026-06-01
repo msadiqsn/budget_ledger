@@ -782,7 +782,7 @@ if data:
     else:
         score += 5
 
-    if sip < 50000:
+    if sip < INVESTMENT_REF["sip"]:
         score -= 25
     else:
         score += 5
