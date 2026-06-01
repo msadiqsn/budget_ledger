@@ -357,8 +357,10 @@ if page == "Bills & Commitments":
 
             st.markdown("---")
 
-            col1, col2, col3 = st.columns(
-                [3, 1, 1]
+            # === BILL LAYOUT ===
+            # === DETAILS + PAY + DELETE ===
+            col1, col2, col3, col4 = st.columns(
+                [3, 1, 1, 1]
             )
 
             with col1:
