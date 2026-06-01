@@ -108,6 +108,17 @@ def load_data():
     return supabase.table("budget").select("*").execute().data
 
 
+# === DELETE BILL ===
+# === REMOVE FROM PAYMENT SCHEDULE ===
+def delete_bill(bill_id):
+
+    supabase.table(
+        "payment_schedule"
+    ).delete().eq(
+        "id",
+        bill_id
+    ).execute()
+
 # -----------------------------
 # DELETE EXPENSE
 # -----------------------------
