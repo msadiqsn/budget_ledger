@@ -769,14 +769,28 @@ if page == "Bills & Commitments":
                         "💰 Pay"
                     ):
 
+                        last_payment = get_last_payment(
+                            row["name"]
+                        )
+
+                        default_amount = int(
+                            row["expected_amount"]
+                        )
+
+                        if last_payment:
+
+                            default_amount = int(
+                                last_payment["amount"]
+                            )
+
                         payment_amount = st.number_input(
                             "Amount",
                             min_value=0,
-                            value=int(
-                                row["expected_amount"]
-                            ),
+                            value=default_amount,
                             key=f"amt_{row['id']}"
-                        )
+                        )               
+
+                       
 
                         payment_date = st.date_input(
                             "Payment Date",
