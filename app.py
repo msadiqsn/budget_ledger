@@ -370,6 +370,7 @@ if page == "Bills & Commitments":
 
     overdue_count = 0
     due_today_count = 0
+    partial_count = 0
     paid_count = 0
 
     current_month = (
