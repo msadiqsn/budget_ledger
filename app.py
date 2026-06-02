@@ -141,12 +141,18 @@ def save_bill_payment(
     }).execute()
 
 
-
-# === GET LAST PAYMENT ===
-# === MOST RECENT BILL PAYMENT ===
-def get_last_payment(
-    bill_name
+# === MONTH PAYMENT SUMMARY ===
+# === SELECTED MONTH ONLY ===
+def get_month_payment_summary(
+    bill_name,
+    selected_year,
+    selected_month_num
 ):
+
+    month_prefix = (
+        f"{selected_year}-"
+        f"{selected_month_num}"
+    )
 
     result = (
         supabase.table(
@@ -157,19 +163,70 @@ def get_last_payment(
             "bill_name",
             bill_name
         )
-        .order(
-            "payment_date",
-            desc=True
-        )
-        .limit(1)
         .execute()
     )
 
-    if result.data:
+    payment_df = pd.DataFrame(
+        result.data
+    )
 
-        return result.data[0]
+    if payment_df.empty:
 
-    return None
+        return {
+            "total_paid": 0,
+            "transaction_count": 0,
+            "last_payment": None,
+            "transactions": []
+        }
+
+    payment_df = payment_df[
+        payment_df["payment_date"]
+        .astype(str)
+        .str.startswith(
+            month_prefix
+        )
+    ]
+
+    if payment_df.empty:
+
+        return {
+            "total_paid": 0,
+            "transaction_count": 0,
+            "last_payment": None,
+            "transactions": []
+        }
+
+    payment_df = payment_df.sort_values(
+        ["payment_date", "created_at"],
+        ascending=[False, False]
+    )
+
+    return {
+
+        "total_paid": (
+            payment_df["amount"]
+            .sum()
+        ),
+
+        "transaction_count": len(
+            payment_df
+        ),
+
+        "last_payment": (
+            payment_df.iloc[0]
+            .to_dict()
+        ),
+
+        "transactions": (
+            payment_df
+            .sort_values(
+                ["payment_date", "created_at"]
+            )
+            .to_dict(
+                "records"
+            )
+        )
+    }
 
 
 # -----------------------------
