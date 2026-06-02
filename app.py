@@ -720,7 +720,7 @@ if page == "Bills & Commitments":
 
 
 # === STATUS ===
-
+                      
                 if row["category"] == "Utility":
 
                     if paid_amount > 0:
@@ -731,20 +731,39 @@ if page == "Bills & Commitments":
 
                         st.caption(
                             f"Paid This Month: "
-                            f"₹{format_inr(paid_amount)}"
+                            f"₹{format_inr(payment_summary['total_paid'])}"
                         )
+
+                        st.caption(
+                            f"Transactions: "
+                            f"{payment_summary['transaction_count']}"
+                        )
+
+                        for txn in payment_summary[
+                            "transactions"
+                        ]:
+
+                            st.caption(
+                                f"• "
+                                f"{txn['payment_date']}  "
+                                f"₹{format_inr(txn['amount'])}"
+                            )
 
                         if last_payment:
 
                             st.caption(
-                                f"Last Payment: "
+                                "Last Payment This Month"
+                            )
+
+                            st.caption(
                                 f"₹{format_inr(last_payment['amount'])}"
                             )
 
                             st.caption(
                                 f"On: "
                                 f"{last_payment['payment_date']}"
-                            )
+                            )                  
+
 
                     else:
 
