@@ -783,12 +783,24 @@ if page == "Bills & Commitments":
                                 last_payment["amount"]
                             )
 
+                        st.caption(
+                            f"Expected: "
+                            f"₹{format_inr(row['expected_amount'])}"
+                        )
+
+                        if last_payment:
+
+                            st.caption(
+                                f"Last Paid: "
+                                f"₹{format_inr(last_payment['amount'])}"
+                            )
+
                         payment_amount = st.number_input(
                             "Amount",
                             min_value=0,
                             value=default_amount,
                             key=f"amt_{row['id']}"
-                        )               
+                        )              
 
                        
 
