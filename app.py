@@ -553,6 +553,12 @@ if page == "Bills & Commitments":
                         key=f"amt_{row['id']}"
                     )
 
+                    payment_date = st.date_input(
+                        "Payment Date",
+                        value=datetime.today(),
+                        key=f"date_{row['id']}"
+                    )
+
                     payment_notes = st.text_input(
                         "Notes",
                         key=f"notes_{row['id']}"
@@ -565,9 +571,7 @@ if page == "Bills & Commitments":
 
                         save_bill_payment(
                             row["name"],
-                            datetime.today()
-                            .date()
-                            .isoformat(),
+                            payment_date.isoformat(),
                             payment_amount,
                             payment_notes
                         )
