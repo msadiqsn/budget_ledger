@@ -439,7 +439,7 @@ if page == "Bills & Commitments":
             due_today_count += 1
 
 
-    c1, c2, c3 = st.columns(3)
+    c1, c2, c3, c4 = st.columns(4)
 
     with c1:
         st.metric(
@@ -449,15 +449,22 @@ if page == "Bills & Commitments":
 
     with c2:
         st.metric(
-            "🟡 Due Today",
-            due_today_count
+            "🟠 Partial",
+            partial_count
         )
 
     with c3:
         st.metric(
+            "🟡 Due Today",
+            due_today_count
+        )
+
+    with c4:
+        st.metric(
             "🟢 Paid",
             paid_count
         )
+
 
     st.markdown("---")
 
