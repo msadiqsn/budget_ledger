@@ -614,9 +614,43 @@ if page == "Bills & Commitments":
                     row["expected_amount"]
                 )
 
-                today_day = (
-                    datetime.today().day
+
+                real_today = (
+                    datetime.today()
                 )
+
+                selected_month_num = int(
+                    month_map[selected_month]
+                )
+
+                is_current_month = (
+                    selected_year == real_today.year
+                    and selected_month_num == real_today.month
+                )
+
+                is_past_month = (
+                    (selected_year < real_today.year)
+                    or
+                    (
+                        selected_year == real_today.year
+                        and selected_month_num < real_today.month
+                    )
+                )
+
+                is_future_month = (
+                    (selected_year > real_today.year)
+                    or
+                    (
+                        selected_year == real_today.year
+                        and selected_month_num > real_today.month
+                    )
+                )
+
+                today_day = (
+                    real_today.day
+                )
+
+
 
                 # === STATUS === 
 
