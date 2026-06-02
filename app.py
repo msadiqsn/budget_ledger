@@ -553,47 +553,63 @@ if page == "Bills & Commitments":
 
             with col3:
 
-                with st.expander(
-                    "💰 Pay"
+                show_payment_option = True
+
+                if (
+                    row["category"] == "Fixed"
+                    and paid_amount >= expected_amount
                 ):
 
-                    payment_amount = st.number_input(
-                        "Amount",
-                        min_value=0,
-                        value=int(
-                            row["expected_amount"]
-                        ),
-                        key=f"amt_{row['id']}"
+                    show_payment_option = False
+
+                    st.success(
+                        "🔒 Fully Paid"
                     )
 
-                    payment_date = st.date_input(
-                        "Payment Date",
-                        value=datetime.today(),
-                        key=f"date_{row['id']}"
-                    )
+                if show_payment_option:
 
-                    payment_notes = st.text_input(
-                        "Notes",
-                        key=f"notes_{row['id']}"
-                    )
-
-                    if st.button(
-                        "Save Payment",
-                        key=f"save_{row['id']}"
+                    with st.expander(
+                        "💰 Pay"
                     ):
 
-                        save_bill_payment(
-                            row["name"],
-                            payment_date.isoformat(),
-                            payment_amount,
-                            payment_notes
+                        payment_amount = st.number_input(
+                            "Amount",
+                            min_value=0,
+                            value=int(
+                                row["expected_amount"]
+                            ),
+                            key=f"amt_{row['id']}"
                         )
 
-                        st.success(
-                            "Payment saved"
+                        payment_date = st.date_input(
+                            "Payment Date",
+                            value=datetime.today(),
+                            key=f"date_{row['id']}"
                         )
 
-                        st.rerun()
+                        payment_notes = st.text_input(
+                            "Notes",
+                            key=f"notes_{row['id']}"
+                        )
+
+                        if st.button(
+                            "Save Payment",
+                            key=f"save_{row['id']}"
+                        ):
+
+                            save_bill_payment(
+                                row["name"],
+                                payment_date.isoformat(),
+                                payment_amount,
+                                payment_notes
+                            )
+
+                            st.success(
+                                "Payment saved"
+                            )
+
+                            st.rerun()
+
 
 
             with col4:
