@@ -148,10 +148,9 @@ def get_month_payment_summary(
     selected_year,
     selected_month_num
 ):
-
     month_prefix = (
-        f"{selected_year}-"
-        f"{selected_month_num}"
+    f"{selected_year}-"
+    f"{str(selected_month_num).zfill(2)}"
     )
 
     result = (
@@ -925,20 +924,31 @@ if page == "Bills & Commitments":
                     with st.expander(
                         "💰 Pay"
                     ):
-
-                        last_payment = get_last_payment(
-                            row["name"]
+                    
+                        payment_summary = (
+                            get_month_payment_summary(
+                                row["name"],
+                                selected_year,
+                                month_map[selected_month]
+                            )
                         )
-
+                    
+                        last_payment = (
+                            payment_summary[
+                                "last_payment"
+                            ]
+                        )
+                    
                         default_amount = int(
                             row["expected_amount"]
                         )
-
+                    
                         if last_payment:
-
+                    
                             default_amount = int(
                                 last_payment["amount"]
                             )
+  
 
                         st.caption(
                             f"Expected: "
