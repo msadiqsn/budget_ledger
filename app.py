@@ -612,15 +612,24 @@ if page == "Bills & Commitments":
                     )
 
                     st.warning(
-                        f"🟡 Partial "
-                        f"(₹{format_inr(paid_amount)} / "
-                        f"₹{format_inr(expected_amount)})"
+                        "🟠 Partial Payment"
+                    )
+
+                    st.caption(
+                        f"Paid: "
+                        f"₹{format_inr(paid_amount)}"
+                    )
+
+                    st.caption(
+                        f"Target: "
+                        f"₹{format_inr(expected_amount)}"
                     )
 
                     st.caption(
                         f"Remaining: "
                         f"₹{format_inr(remaining)}"
                     )
+
 
                 else:
 
