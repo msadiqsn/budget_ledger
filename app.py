@@ -507,29 +507,51 @@ if page == "Bills & Commitments":
                 .sum()
             )
 
-        if paid_amount >= bill["expected_amount"]:
 
-            paid_count += 1
-
-        elif paid_amount > 0:
-
-            partial_count += 1
-
-        elif is_past_month:
-
-            overdue_count += 1
-
-        elif is_current_month:
-
-            if today_day > bill["due_day"]:
-
+        if bill["category"] == "Utility":
+        
+            if paid_amount > 0:
+        
+                paid_count += 1
+        
+            elif is_past_month:
+        
                 overdue_count += 1
-
-            elif today_day == bill["due_day"]:
-
-                due_today_count += 1
-
-
+        
+            elif is_current_month:
+        
+                if today_day > bill["due_day"]:
+        
+                    overdue_count += 1
+        
+                elif today_day == bill["due_day"]:
+        
+                    due_today_count += 1
+        
+        else:
+        
+            if paid_amount >= bill["expected_amount"]:
+        
+                paid_count += 1
+        
+            elif paid_amount > 0:
+        
+                partial_count += 1
+        
+            elif is_past_month:
+        
+                overdue_count += 1
+        
+            elif is_current_month:
+        
+                if today_day > bill["due_day"]:
+        
+                    overdue_count += 1
+        
+                elif today_day == bill["due_day"]:
+        
+                    due_today_count += 1
+    
 
     c1, c2, c3, c4 = st.columns(4)
 
