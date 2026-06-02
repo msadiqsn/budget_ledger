@@ -605,14 +605,25 @@ if page == "Bills & Commitments":
 
                 # === LAST PAYMENT ===
                 # === MOST RECENT PAYMENT ===
-                last_payment = get_last_payment(
-                    row["name"]
+
+                payment_summary = (
+                    get_month_payment_summary(
+                        row["name"],
+                        selected_year,
+                        month_map[selected_month]
+                    )
+                )
+
+                last_payment = (
+                    payment_summary[
+                        "last_payment"
+                    ]
                 )
 
                 if last_payment:
 
                     st.caption(
-                        f"Last Paid: "
+                        f"Last Paid This Month: "
                         f"₹{format_inr(last_payment['amount'])}"
                     )
 
