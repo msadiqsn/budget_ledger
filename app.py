@@ -362,6 +362,97 @@ if page == "Bills & Commitments":
 
             st.rerun()
 
+
+    st.markdown("---")
+
+    # === BILL SUMMARY ===
+    # === PAID / DUE / OVERDUE ===
+
+    overdue_count = 0
+    due_today_count = 0
+    paid_count = 0
+
+    current_month = (
+        datetime.today()
+        .strftime("%Y-%m")
+    )
+
+    today_day = (
+        datetime.today().day
+    )
+
+    schedule_preview = (
+        supabase
+        .table("payment_schedule")
+        .select("*")
+        .execute()
+        .data
+    )
+
+    for bill in schedule_preview:
+
+        payment_data = (
+            supabase
+            .table("bill_payments")
+            .select("*")
+            .eq("bill_name", bill["name"])
+            .execute()
+            .data
+        )
+
+        payment_df = pd.DataFrame(
+            payment_data
+        )
+
+        paid_amount = 0
+
+        if not payment_df.empty:
+
+            payment_df = payment_df[
+                payment_df["payment_date"]
+                .astype(str)
+                .str.startswith(
+                    current_month
+                )
+            ]
+
+            paid_amount = (
+                payment_df["amount"]
+                .sum()
+            )
+
+        if paid_amount >= bill["expected_amount"]:
+
+            paid_count += 1
+
+        elif today_day > bill["due_day"]:
+
+            overdue_count += 1
+
+        elif today_day == bill["due_day"]:
+
+            due_today_count += 1
+
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        st.metric(
+            "🔴 Overdue",
+            overdue_count
+        )
+
+    with c2:
+        st.metric(
+            "🟡 Due Today",
+            due_today_count
+        )
+
+    with c3:
+        st.metric(
+            "🟢 Paid",
+            paid_count
+        )
+
     st.markdown("---")
 
     schedule_data = (
