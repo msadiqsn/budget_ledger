@@ -478,7 +478,8 @@ if page == "Bills & Commitments":
                     datetime.today().day
                 )
 
-                # === STATUS ===
+                # === STATUS === 
+
 
                 if paid_amount >= expected_amount:
 
@@ -486,6 +487,18 @@ if page == "Bills & Commitments":
                         f"✅ Paid "
                         f"(₹{format_inr(paid_amount)})"
                     )
+
+                    extra_paid = (
+                        paid_amount
+                        - expected_amount
+                    )
+
+                    if extra_paid > 0:
+
+                        st.info(
+                            f"💰 Extra Paid "
+                            f"₹{format_inr(extra_paid)}"
+                        )
 
                 elif paid_amount > 0:
 
