@@ -651,102 +651,172 @@ if page == "Bills & Commitments":
                 )
 
 
+# === STATUS ===
 
-                # === STATUS === 
+                if row["category"] == "Utility":
 
+                    if paid_amount > 0:
 
-                if paid_amount >= expected_amount:
-
-                    st.success(
-                        f"✅ Paid "
-                        f"(₹{format_inr(paid_amount)})"
-                    )
-
-                    extra_paid = (
-                        paid_amount
-                        - expected_amount
-                    )
-
-                    if extra_paid > 0:
-
-                        st.info(
-                            f"💰 Extra Paid "
-                            f"₹{format_inr(extra_paid)}"
+                        st.success(
+                            "✅ Paid"
                         )
 
-                elif paid_amount > 0:
-
-                    remaining = (
-                        expected_amount
-                        - paid_amount
-                    )
-
-                    st.warning(
-                        "🟠 Partial Payment"
-                    )
-
-                    st.caption(
-                        f"Paid: "
-                        f"₹{format_inr(paid_amount)}"
-                    )
-
-                    st.caption(
-                        f"Target: "
-                        f"₹{format_inr(expected_amount)}"
-                    )
-
-                    st.caption(
-                        f"Remaining: "
-                        f"₹{format_inr(remaining)}"
-                    )
-
-
-                else:
-  
-                    if is_future_month:
-
-                        st.info(
-                            "⚪ Future Month"
+                        st.caption(
+                            f"Paid This Month: "
+                            f"₹{format_inr(paid_amount)}"
                         )
 
-                    elif is_past_month:
+                        if last_payment:
 
-                        st.error(
-                            "🔴 Missed Payment"
-                        )
+                            st.caption(
+                                f"Last Payment: "
+                                f"₹{format_inr(last_payment['amount'])}"
+                            )
+
+                            st.caption(
+                                f"On: "
+                                f"{last_payment['payment_date']}"
+                            )
 
                     else:
 
-                        if today_day > row["due_day"]:
+                        if is_future_month:
 
-                            overdue = (
-                                today_day
-                                - row["due_day"]
+                            st.info(
+                                "⚪ Future Month"
                             )
+
+                        elif is_past_month:
 
                             st.error(
-                                f"🔴 Overdue "
-                                f"({overdue} days)"
-                            )
-
-                        elif today_day == row["due_day"]:
-
-                            st.warning(
-                                "🟡 Due Today"
+                                "🔴 Missed Payment"
                             )
 
                         else:
 
-                            due_in = (
-                                row["due_day"]
-                                - today_day
-                            )
+                            if today_day > row["due_day"]:
+
+                                overdue = (
+                                    today_day
+                                    - row["due_day"]
+                                )
+
+                                st.error(
+                                    f"🔴 Overdue "
+                                    f"({overdue} days)"
+                                )
+
+                            elif today_day == row["due_day"]:
+
+                                st.warning(
+                                    "🟡 Due Today"
+                                )
+
+                            else:
+
+                                due_in = (
+                                    row["due_day"]
+                                    - today_day
+                                )
+
+                                st.info(
+                                    f"🟡 Due in "
+                                    f"{due_in} days"
+                                )
+
+                else:
+
+                    if paid_amount >= expected_amount:
+
+                        st.success(
+                            f"✅ Paid "
+                            f"(₹{format_inr(paid_amount)})"
+                        )
+
+                        extra_paid = (
+                            paid_amount
+                            - expected_amount
+                        )
+
+                        if extra_paid > 0:
 
                             st.info(
-                                f"🟡 Due in "
-                                f"{due_in} days"
+                                f"💰 Extra Paid "
+                                f"₹{format_inr(extra_paid)}"
                             )
 
+                    elif paid_amount > 0:
+
+                        remaining = (
+                            expected_amount
+                            - paid_amount
+                        )
+
+                        st.warning(
+                            "🟠 Partial Payment"
+                        )
+
+                        st.caption(
+                            f"Paid: "
+                            f"₹{format_inr(paid_amount)}"
+                        )
+
+                        st.caption(
+                            f"Target: "
+                            f"₹{format_inr(expected_amount)}"
+                        )
+
+                        st.caption(
+                            f"Remaining: "
+                            f"₹{format_inr(remaining)}"
+                        )
+
+                    else:
+
+                        if is_future_month:
+
+                            st.info(
+                                "⚪ Future Month"
+                            )
+
+                        elif is_past_month:
+
+                            st.error(
+                                "🔴 Missed Payment"
+                            )
+
+                        else:
+
+                            if today_day > row["due_day"]:
+
+                                overdue = (
+                                    today_day
+                                    - row["due_day"]
+                                )
+
+                                st.error(
+                                    f"🔴 Overdue "
+                                    f"({overdue} days)"
+                                )
+
+                            elif today_day == row["due_day"]:
+
+                                st.warning(
+                                    "🟡 Due Today"
+                                )
+
+                            else:
+
+                                due_in = (
+                                    row["due_day"]
+                                    - today_day
+                                )
+
+                                st.info(
+                                    f"🟡 Due in "
+                                    f"{due_in} days"
+                                )
+           
 
             with col3:
 
