@@ -426,6 +426,10 @@ if page == "Bills & Commitments":
 
             paid_count += 1
 
+        elif paid_amount > 0:
+
+            partial_count += 1
+
         elif today_day > bill["due_day"]:
 
             overdue_count += 1
@@ -433,6 +437,7 @@ if page == "Bills & Commitments":
         elif today_day == bill["due_day"]:
 
             due_today_count += 1
+
 
     c1, c2, c3 = st.columns(3)
 
