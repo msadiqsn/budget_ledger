@@ -368,19 +368,48 @@ if page == "Bills & Commitments":
     # === BILL SUMMARY ===
     # === PAID / DUE / OVERDUE ===
 
+
     overdue_count = 0
     due_today_count = 0
     partial_count = 0
     paid_count = 0
 
     current_month = (
-        datetime.today()
-        .strftime("%Y-%m")
+        f"{selected_year}-"
+        f"{month_map[selected_month]}"
     )
 
-    today_day = (
-        datetime.today().day
+    real_today = datetime.today()
+
+    selected_month_num = int(
+        month_map[selected_month]
     )
+
+    is_current_month = (
+        selected_year == real_today.year
+        and selected_month_num == real_today.month
+    )
+
+    is_past_month = (
+        (selected_year < real_today.year)
+        or
+        (
+            selected_year == real_today.year
+            and selected_month_num < real_today.month
+        )
+    )
+
+    is_future_month = (
+        (selected_year > real_today.year)
+        or
+        (
+            selected_year == real_today.year
+            and selected_month_num > real_today.month
+        )
+    )
+
+    today_day = real_today.day
+
 
     schedule_preview = (
         supabase
@@ -430,13 +459,20 @@ if page == "Bills & Commitments":
 
             partial_count += 1
 
-        elif today_day > bill["due_day"]:
+        elif is_past_month:
 
             overdue_count += 1
 
-        elif today_day == bill["due_day"]:
+        elif is_current_month:
 
-            due_today_count += 1
+            if today_day > bill["due_day"]:
+
+                overdue_count += 1
+
+            elif today_day == bill["due_day"]:
+
+                due_today_count += 1
+
 
 
     c1, c2, c3, c4 = st.columns(4)
