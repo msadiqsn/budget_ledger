@@ -576,8 +576,8 @@ if page == "Bills & Commitments":
 
                 # === CURRENT MONTH PAYMENTS ===
                 current_month = (
-                    datetime.today()
-                    .strftime("%Y-%m")
+                    f"{selected_year}-"
+                    f"{month_map[selected_month]}"
                 )
 
                 payment_data = (
