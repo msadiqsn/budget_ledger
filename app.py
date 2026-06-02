@@ -702,36 +702,50 @@ if page == "Bills & Commitments":
 
 
                 else:
+  
+                    if is_future_month:
 
-                    if today_day > row["due_day"]:
-
-                        overdue = (
-                            today_day
-                            - row["due_day"]
+                        st.info(
+                            "⚪ Future Month"
                         )
+
+                    elif is_past_month:
 
                         st.error(
-                            f"🔴 Overdue "
-                            f"({overdue} days)"
-                        )
-
-                    elif today_day == row["due_day"]:
-
-                        st.warning(
-                            "🟡 Due Today"
+                            "🔴 Missed Payment"
                         )
 
                     else:
 
-                        due_in = (
-                            row["due_day"]
-                            - today_day
-                        )
+                        if today_day > row["due_day"]:
 
-                        st.info(
-                            f"🟡 Due in "
-                            f"{due_in} days"
-                        )
+                            overdue = (
+                                today_day
+                                - row["due_day"]
+                            )
+
+                            st.error(
+                                f"🔴 Overdue "
+                                f"({overdue} days)"
+                            )
+
+                        elif today_day == row["due_day"]:
+
+                            st.warning(
+                                "🟡 Due Today"
+                            )
+
+                        else:
+
+                            due_in = (
+                                row["due_day"]
+                                - today_day
+                            )
+
+                            st.info(
+                                f"🟡 Due in "
+                                f"{due_in} days"
+                            )
 
 
             with col3:
