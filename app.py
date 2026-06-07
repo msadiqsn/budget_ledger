@@ -857,50 +857,86 @@ if page == "Bills & Commitments":
                 else:
 
                     if paid_amount >= expected_amount:
-
+                    
                         st.success(
                             f"✅ Paid "
                             f"(₹{format_inr(paid_amount)})"
                         )
-
+                    
+                        st.caption(
+                            f"Transactions: "
+                            f"{payment_summary['transaction_count']}"
+                        )
+                    
+                        for txn in payment_summary[
+                            "transactions"
+                        ]:
+                    
+                            st.caption(
+                                f"• "
+                                f"{txn['payment_date']}  "
+                                f"₹{format_inr(txn['amount'])}"
+                            )
+                    
                         extra_paid = (
                             paid_amount
                             - expected_amount
                         )
-
+                    
                         if extra_paid > 0:
-
+                    
                             st.info(
                                 f"💰 Extra Paid "
                                 f"₹{format_inr(extra_paid)}"
                             )
+                    
+
 
                     elif paid_amount > 0:
-
+                    
                         remaining = (
                             expected_amount
                             - paid_amount
                         )
-
+                    
                         st.warning(
                             "🟠 Partial Payment"
                         )
-
+                    
                         st.caption(
                             f"Paid: "
                             f"₹{format_inr(paid_amount)}"
                         )
-
+                    
                         st.caption(
                             f"Target: "
                             f"₹{format_inr(expected_amount)}"
                         )
-
+                    
                         st.caption(
                             f"Remaining: "
                             f"₹{format_inr(remaining)}"
                         )
+                    
+                        st.caption(
+                            f"Transactions: "
+                            f"{payment_summary['transaction_count']}"
+                        )
+                    
+                        for txn in payment_summary[
+                            "transactions"
+                        ]:
+                    
+                            st.caption(
+                                f"• "
+                                f"{txn['payment_date']}  "
+                                f"₹{format_inr(txn['amount'])}"
+                            )
 
+
+
+
+                    
                     else:
 
                         if is_future_month:
