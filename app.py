@@ -795,9 +795,22 @@ if page == "Bills & Commitments":
                     real_today.day
                 )
 
+                settled = is_bill_settled(
+                    row["name"],
+                    selected_year,
+                    selected_month_num
+                )                
 
 # === STATUS ===
-                      
+
+                if settled:
+                
+                    st.success(
+                        "✅ Settled Manually"
+                    )
+                
+                elif row["category"] == "Utility":
+                
                 if row["category"] == "Utility":
 
                     if paid_amount > 0:
