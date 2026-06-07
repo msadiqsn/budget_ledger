@@ -227,6 +227,33 @@ def get_month_payment_summary(
         )
     }
 
+def is_bill_settled(
+    bill_name,
+    selected_year,
+    selected_month_num
+):
+
+    month_key = (
+        f"{selected_year}-"
+        f"{selected_month_num}"
+    )
+
+    result = (
+        supabase
+        .table("bill_settlements")
+        .select("*")
+        .eq(
+            "bill_name",
+            bill_name
+        )
+        .eq(
+            "settlement_month",
+            month_key
+        )
+        .execute()
+    )
+
+    return len(result.data) > 0
 
 # -----------------------------
 # DELETE EXPENSE
