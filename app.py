@@ -684,6 +684,13 @@ if page == "Bills & Commitments":
                     )
                 )
 
+                settled = is_bill_settled(
+                    row["name"],
+                    selected_year,
+                    month_map[selected_month]
+                )                
+                
+
                 last_payment = (
                     payment_summary[
                         "last_payment"
