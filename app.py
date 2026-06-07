@@ -811,8 +811,6 @@ if page == "Bills & Commitments":
                 
                 elif row["category"] == "Utility":
                 
-                if row["category"] == "Utility":
-
                     if paid_amount > 0:
 
                         st.success(
