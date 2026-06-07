@@ -235,8 +235,8 @@ def is_bill_settled(
 
     month_key = (
         f"{selected_year}-"
-        f"{selected_month_num}"
-    )
+        f"{str(selected_month_num).zfill(2)}"
+    )    
 
     result = (
         supabase
