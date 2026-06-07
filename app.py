@@ -140,6 +140,25 @@ def save_bill_payment(
 
     }).execute()
 
+def save_bill_settlement(
+    bill_name,
+    selected_year,
+    selected_month_num
+):
+
+    month_key = (
+        f"{selected_year}-"
+        f"{str(selected_month_num).zfill(2)}"
+    )
+
+    supabase.table(
+        "bill_settlements"
+    ).insert({
+
+        "bill_name": bill_name,
+        "settlement_month": month_key
+
+    }).execute()
 
 # === MONTH PAYMENT SUMMARY ===
 # === SELECTED MONTH ONLY ===
