@@ -1126,14 +1126,44 @@ if page == "Bills & Commitments":
                             st.rerun()
 
 
-
             with col4:
-
+            
+                settled = is_bill_settled(
+                    row["name"],
+                    selected_year,
+                    selected_month_num
+                )
+            
+                if not settled:
+            
+                    if st.button(
+                        "✔ Settle",
+                        key=f"settle_{row['id']}"
+                    ):
+            
+                        save_bill_settlement(
+                            row["name"],
+                            selected_year,
+                            selected_month_num
+                        )
+            
+                        st.success(
+                            "Bill settled"
+                        )
+            
+                        st.rerun()
+            
+                else:
+            
+                    st.success(
+                        "✅ Settled"
+                    )
+            
                 delete_key = (
                     f"delete_bill_"
                     f"{row['id']}"
                 )
-
+               
                 confirm_key = (
                     f"confirm_bill_"
                     f"{row['id']}"
